@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{%block title%} Lista de Produtos {%endblock%}
+{% block main %}
+
+
+
+
+
+    <div class="row">
+        <div class="col-12">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label class="sr-only">Email</label>
+                    <p class="form-control-static">Pesquisar por nome</p>
+                </div>
+                <div class="form-group mx-sm-3">
+                    <input type="text" class="form-control" id="pesquisa" name="pesquisa" placeholder="Nome">
+                </div>
+                <button type="submit" class="btn btn-primary">Pesquisar</button>
+
+
+        </div>
+
+
+    </div>
+    <h1>Lista de Produtos</h1>
+    <ul>
+        {% for contato in contatos %}
+
+        <li>{{ contato.nome }} <b>R${{ contato.valor }}</b><a href="{%url 'atualizar_contato' contato.id %}"> Editar</a>
+            <a href="{%url 'excluir_produto' contato.id %}"> Deletar</a>
+
+        <button onclick="confirmarDelete()">Deletar</button></li><hr>
+
+                     <script>
+                        function confirmarDelete()
+                        {
+                        var x;
+                        var r=confirm("Excluir postagem?");
+                        if (r==true)
+                          {
+                          location.href="{% url 'excluir_produto' contato.id %}"
+                          }
+                        }
+                     </script>
+
+
+
+        {% endfor %}
+    </ul>
+
+    <br>
+
+    <a href="{% url 'adicionar_contato' %}" class="btn btn-primary">Novo Produto</a>
+     <a href="{% url 'adicionar_lista' %}" class="btn btn-primary">Nova Lista</a>
+
+
+{% endblock %}

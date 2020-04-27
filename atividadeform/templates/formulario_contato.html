@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load bootstrap %}
+
+{%block title%} Formulario {%endblock%}
+{% block main %}
+    <h1>Novo Produto</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-success">Salvar</button>
+
+    </form>
+
+
+{% endblock %}

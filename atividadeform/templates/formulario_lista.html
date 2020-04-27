@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load bootstrap %}
+
+{%block title%} Formulario {%endblock%}
+{% block main %}
+    <h1>Nova Lista</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-success">Adicionar</button> <button type="submit" class="btn btn-success">Exportar Arquivo</button>
+
+    </form>
+    <br>
+
+     <!--<h1>Produtos adicionados</h1>-->
+    <ul>
+        <!--{% for produto in produtos %}-->
+            <!--<li>{{ produto.produto }} <b>{{ produto.quantidade }}</b>-->
+
+
+                <!--&lt;!&ndash;<button onclick="confirmarDelete()">Deletar</button></li><hr>&ndash;&gt;-->
+                <!--<button type="button" class="btn btn-danger" onclick="confirmarDelete()">Deletar</button><hr>-->
+
+                     <!--<script>-->
+                        <!--function confirmarDelete()-->
+                        <!--{-->
+                        <!--var x;-->
+                        <!--var r=confirm("Excluir postagem?");-->
+                        <!--if (r==true)-->
+                          <!--{-->
+                          <!--location.href="{% url 'excluir_produto_lista' produto.id %}"-->
+                          <!--}-->
+                        <!--}-->
+                     <!--</script>-->
+
+        <!--{% endfor %}-->
+
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action active">
+                Produtos adicionados a lista
+             </a>
+            {% for produto in produtos %}
+                  <a href="#" class="list-group-item list-group-item-action">{{ produto.produto }} | <b>{{ produto.quantidade }} UND</b></a>
+
+
+                <!--<button onclick="confirmarDelete()">Deletar</button></li><hr>-->
+                <!--<button type="button" class="btn btn-danger" onclick="confirmarDelete()">Deletar</button><hr>-->
+
+                     <!--<script>-->
+                        <!--function confirmarDelete()-->
+                        <!--{-->
+                        <!--var x;-->
+                        <!--var r=confirm("Excluir postagem?");-->
+                        <!--if (r==true)-->
+                          <!--{-->
+                          <!--location.href="{% url 'excluir_produto_lista' produto.id %}"-->
+                          <!--}-->
+                        <!--}-->
+                     <!--</script>-->
+            {% endfor %}
+
+        </div>
+
+    </ul>
+
+{% endblock %}
