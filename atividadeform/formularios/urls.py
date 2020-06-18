@@ -21,6 +21,8 @@ from contatos.views import atualizar_contato
 from contatos.views import excluir_produto
 from contatos.views import nova_lista
 from contatos.views import excluir_prod_lista
+from contatos.views import gerar_xlsx
+from contatos.views import novo_fornecedor
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,4 +32,6 @@ urlpatterns = [
     path('exluir/<int:id>)/', excluir_produto, name = "excluir_produto"),
     path('lista', nova_lista, name = 'adicionar_lista'),
     path('exluir_prod/<int:id>)/', excluir_prod_lista, name = "excluir_produto_lista"),
+    path('gerar_documento', gerar_xlsx,name = 'gerar_documento'),
+    path('novo_fornecedor', novo_fornecedor, name = 'novo_fornecedor'),
 ]

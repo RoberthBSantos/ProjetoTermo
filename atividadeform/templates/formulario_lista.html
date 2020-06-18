@@ -7,7 +7,7 @@
     <form method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}
-        <button type="submit" class="btn btn-success">Adicionar</button> <button type="submit" class="btn btn-success">Exportar Arquivo</button>
+        <button type="submit" class="btn btn-success">Adicionar a lista</button>  <a href="{% url 'gerar_documento' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
 
     </form>
     <br>

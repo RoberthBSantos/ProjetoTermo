@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Contatos, ListaMaterial
+from .models import Produtos, ListaMaterial, Fornecedor, Grupos
 
-admin.site.register(Contatos)
+admin.site.register(Produtos)
 admin.site.register(ListaMaterial)
+admin.site.register(Fornecedor)
+admin.site.register(Grupos)
