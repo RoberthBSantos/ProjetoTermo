@@ -7,7 +7,8 @@
     <form method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}
-        <button type="submit" class="btn btn-success">Cadastrar</button>
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a href="{% url 'listar_fornecedor' %}" class="btn btn-primary">Cancelar</a>
 
     </form>
 

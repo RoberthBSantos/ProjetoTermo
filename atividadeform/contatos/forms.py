@@ -1,10 +1,11 @@
 from django.forms import ModelForm, DateInput
+from phone_field import PhoneNumber
 from .models import Produtos, ListaMaterial, Fornecedor
 
 class FormularioContato(ModelForm):
     class Meta:
         model = Produtos
-        fields = ['nome','fabricante','fornecedor','modelo','descricao','valor','data']
+        fields = ['nome','fabricante','fornecedor','modelo','grupo','descricao','valor','data']
         widgets = {
             'data': DateInput(attrs={'type': 'date',})
         }

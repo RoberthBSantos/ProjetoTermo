@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Produtos, ListaMaterial
+from .models import Produtos, ListaMaterial, Fornecedor, Grupos
 from .forms import FormularioContato, FormularioLista, FormularioFornecedor
 import openpyxl
 from openpyxl.styles import Font, colors, Alignment, Border, Side, PatternFill
+import docx
+from docx.shared import Pt, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
 def listar_contatos(request):
@@ -42,6 +45,29 @@ def atualizar_contato(request, id):
 
     return render(request,'formulario_contato.html', {'form' : form})
 
+
+def atualizar_fornecedor(request, id):
+    fornecedor = get_object_or_404(Fornecedor, pk=id)
+    form = FormularioFornecedor(request.POST or None, instance=fornecedor)
+
+    if form.is_valid():
+        form.save()
+        return redirect('lista_fornecedor')
+
+    return render(request, 'formulario_fornecedor.html', {'form': form})
+
+def atualizar_prod_lista(request, id):
+    produtos = ListaMaterial;
+    produto = get_object_or_404(ListaMaterial, pk=id)
+    form = FormularioLista(request.POST or None, instance=produto)
+
+    if form.is_valid():
+        form.save()
+        return nova_lista(request)
+
+    return render(request, 'formulario_lista.html', {'form': form})
+
+
 def excluir_produto(request,id):
     produto = get_object_or_404(Produtos, id =  id)
     form = FormularioContato(request.POST or None, request.FILES or None, instance = produto)
@@ -75,8 +101,21 @@ def novo_fornecedor(request):
 
     if form.is_valid():
         form.save()
-        return redirect('lista_contatos')
+        return redirect('listar_fornecedor')
     return render(request,'formulario_fornecedor.html',{'form': form})
+
+
+def listar_fornecedor(request):
+    fornecedores = Fornecedor.objects.order_by('razao_social')
+
+    return render(request, 'lista_fornecedor.html', {'fornecedores' : fornecedores})
+
+def excluir_fornecedor(request,id):
+    if request.method is not 'POST':
+        forn_delete=Fornecedor.objects.filter(id=id)
+        forn_delete.delete()
+        return redirect('index')
+
 
 def nova_lista(request):
     form = FormularioLista(request.POST or None)
@@ -93,6 +132,13 @@ def nova_lista(request):
     #     print(i.produto.fabricante)
 
     return render(request, 'formulario_lista.html', {'form': form,'produtos':produtos})
+
+def excluir_prod_lista(request,id):
+    produtos = ListaMaterial.objects.order_by('produto__nome')
+    if request.method is not 'POST':
+        prod_delete=ListaMaterial.objects.filter(id=id)
+        prod_delete.delete()
+        return nova_lista(request)
 
 def gerar_xlsx(request):
 
@@ -115,7 +161,7 @@ def gerar_xlsx(request):
 
 
     #FORMATANDO AS CÉLULAS DO ARQUIVO
-    ft_cabecalho = Font(name='Arial', size=12, bold=True)
+    ft_cabecalho = Font(name='Arial', size=12, bold=True, color= 'FFFFFF')
     ft_item = Font(name='Arial',size=10)
     ft_item_negrito = Font(name='Arial', size=10,bold=True)
     ft_item_italico = Font(name='Arial', size=10, italic=True, color='505050')
@@ -175,6 +221,9 @@ def gerar_xlsx(request):
     for item in lista:
         for produto in produtos:
             if item.produto.id == produto.id:
+                descricao = produto.descricao.replace(';','')
+                descricao = descricao.splitlines()
+                print(descricao)
                 planilha['A' + str(cont)] = produto.nome
                 planilha['B' + str(cont)] = produto.modelo
                 planilha['C' + str(cont)] = produto.fabricante
@@ -184,7 +233,7 @@ def gerar_xlsx(request):
                 planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['H' + str(cont)] = '= E' + str(cont) + '*F' + str(cont)
 
-                print(format(produto.data, "%d/%m/%Y"))
+                # print(format(produto.data, "%d/%m/%Y"))
 
                 planilha['A' + str(cont)].font = ft_item
                 planilha['B' + str(cont)].font = ft_item
@@ -243,4 +292,449 @@ def gerar_xlsx(request):
 
     return redirect('lista_contatos')
 
+def gerar_docx(request):
 
+    produtos = Produtos.objects.order_by('nome')
+    lista = ListaMaterial.objects.order_by('produto__nome')
+    grupos = Grupos.objects.all()
+    contador = 1
+    cgrupo = 1
+
+    doc = docx.Document()
+    # run = doc.add_paragraph().add_run()
+    # '''Apply style'''
+    # style = doc.styles['Normal']
+    # font = style.font
+    # font.name = 'Calibri'
+    # font.size = docx.shared.Pt(11)
+
+    doc.add_paragraph('ANEXO A – ESPECIFICAÇÕES TÉCNICAS').alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc.paragraphs[0].runs[0].font.size = Pt(16)
+    doc.paragraphs[0].runs[0].font.bold = True
+    doc.paragraphs[0].runs[0].font.name = 'Calibri'
+    doc.add_paragraph('TODOS OS PRODUTOS OFERTADOS DEVERÃO TER, EM SUA COMPOSIÇÃO DE CUSTOS, OS VALORES REFERENTE A INSTALAÇÃO.').alignment = WD_ALIGN_PARAGRAPH.LEFT
+    doc.paragraphs[0].runs[0].font.size = Pt(16)
+    doc.paragraphs[1].runs[0].font.size = Pt(11)
+    doc.paragraphs[1].runs[0].font.name = 'Calibri'
+    doc.add_paragraph('UPI – UNIDADE DE PONTO DE INFRAESTRUTURA').alignment = WD_ALIGN_PARAGRAPH.LEFT
+    doc.paragraphs[2].runs[0].font.size = Pt(13)
+    doc.paragraphs[2].runs[0].font.bold = True
+    doc.paragraphs[2].runs[0].font.name = 'Calibri'
+    doc.paragraphs[2].runs[0].font.color.rgb = RGBColor(79, 129, 189)
+
+
+
+    for grupo in grupos:
+        if group_check(grupo.nome):
+            contador = 1
+            index_group = doc.add_paragraph()
+            titulo = ('GRUPO ', str(cgrupo),' ', grupo.nome)
+            nome = index_group.add_run(titulo)
+            nome.font.bold = True
+            nome.font.color.rgb = RGBColor(79, 129, 189)
+            for item in lista:
+                for produto in produtos:
+                    if item.produto.id == produto.id and str(produto.grupo) == grupo.nome:
+                        print(str(produto.grupo) == '')
+                        run = doc.add_paragraph().add_run()
+
+                        style = doc.styles['Normal']
+                        font = style.font
+                        font.name = 'Calibri'
+                        font.size = docx.shared.Pt(11)
+                        descricao = produto.descricao
+                        descricao = descricao.splitlines()
+                        titulo = (str(cgrupo)+'.' + str(contador) + ' ' + produto.nome)
+                        print(titulo)
+                        paragrafo = doc.add_paragraph()
+                        nome = paragrafo.add_run((titulo))
+                        nome.font.bold = True
+                        nome.font.color.rgb = RGBColor(79, 129, 189)
+                        print(descricao)
+                        contador += 1
+                        for topico in descricao:
+                            doc.add_paragraph(
+                                (topico), style='List Bullet'
+                            )
+            cgrupo += 1
+
+    # doc.add_paragraph('GRUPO 01 -INFRAESTRUTURA').alignment = WD_ALIGN_PARAGRAPH.LEFT
+    # doc.paragraphs[3].runs[0].font.size = Pt(12)
+    # doc.paragraphs[3].runs[0].font.bold = True
+    # doc.paragraphs[3].runs[0].font.name = 'Calibri'
+    # doc.paragraphs[3].runs[0].font.color.rgb = RGBColor(79, 129, 189)
+    #
+    # for item in lista:
+    #     for produto in produtos:
+    #         if item.produto.id == produto.id and str(produto.grupo) == 'INFRAESTRUTURA':
+    #             print (str(produto.grupo) == '')
+    #             run = doc.add_paragraph().add_run()
+    #
+    #             style = doc.styles['Normal']
+    #             font = style.font
+    #             font.name = 'Calibri'
+    #             font.size = docx.shared.Pt(11)
+    #             descricao = produto.descricao
+    #             descricao = descricao.splitlines()
+    #             titulo = ('1.'+ str(contador) + ' ' + produto.nome)
+    #             print (titulo)
+    #             paragrafo =  doc.add_paragraph()
+    #             nome = paragrafo.add_run((titulo))
+    #             nome.font.bold = True
+    #             nome.font.color.rgb = RGBColor(79, 129, 189)
+    #             print(descricao)
+    #             contador += 1
+    #             for topico in descricao:
+    #
+    #                 doc.add_paragraph(
+    #                     (topico), style='List Bullet'
+    #                 )
+    # # GRUPO 2
+    # contador = 1
+    # manutencao = doc.add_paragraph()
+    # titulo = ('GRUPO 02 – SERVIÇOS DE INFRAESTRUTURA')
+    # nome = manutencao.add_run(titulo)
+    # nome.font.bold = True
+    # nome.font.color.rgb = RGBColor(79, 129, 189)
+    # for item in lista:
+    #     for produto in produtos:
+    #         if item.produto.id == produto.id and str(produto.grupo) == 'SERVIÇOS DE INFRAESTRUTURA':
+    #             print (str(produto.grupo) == '')
+    #             run = doc.add_paragraph().add_run()
+    #
+    #             style = doc.styles['Normal']
+    #             font = style.font
+    #             font.name = 'Calibri'
+    #             font.size = docx.shared.Pt(11)
+    #             descricao = produto.descricao
+    #             descricao = descricao.splitlines()
+    #             titulo = ('2.'+ str(contador) + ' ' + produto.nome)
+    #             print (titulo)
+    #             paragrafo =  doc.add_paragraph()
+    #             nome = paragrafo.add_run((titulo))
+    #             nome.font.bold = True
+    #             nome.font.color.rgb = RGBColor(79, 129, 189)
+    #             print(descricao)
+    #             contador += 1
+    #             for topico in descricao:
+    #
+    #                 doc.add_paragraph(
+    #                     (topico), style='List Bullet'
+    #                 )
+    #
+    # # GRUPO 3
+    # contador = 1
+    # manutencao = doc.add_paragraph()
+    # titulo = ('GRUPO 03 – FIBRA ÓPTICA')
+    # nome = manutencao.add_run(titulo)
+    # nome.font.bold = True
+    # nome.font.color.rgb = RGBColor(79, 129, 189)
+    # for item in lista:
+    #     for produto in produtos:
+    #         if item.produto.id == produto.id and str(produto.grupo) == 'FIBRA ÓPTICA':
+    #             print(str(produto.grupo) == '')
+    #             run = doc.add_paragraph().add_run()
+    #
+    #             style = doc.styles['Normal']
+    #             font = style.font
+    #             font.name = 'Calibri'
+    #             font.size = docx.shared.Pt(11)
+    #             descricao = produto.descricao
+    #             descricao = descricao.splitlines()
+    #             titulo = ('3.' + str(contador) + ' ' + produto.nome)
+    #             print(titulo)
+    #             paragrafo = doc.add_paragraph()
+    #             nome = paragrafo.add_run((titulo))
+    #             nome.font.bold = True
+    #             nome.font.color.rgb = RGBColor(79, 129, 189)
+    #             print(descricao)
+    #             contador += 1
+    #             for topico in descricao:
+    #                 doc.add_paragraph(
+    #                     (topico), style='List Bullet'
+    #                 )
+    #
+    # # GRUPO 4
+    # if group_check('FERRAGENS E ACESSÓRIOS'):
+    #     contador = 1
+    #     manutencao = doc.add_paragraph()
+    #     titulo = ('GRUPO 04 – FERRAGENS E ACESSÓRIOS')
+    #     nome = manutencao.add_run(titulo)
+    #     nome.font.bold = True
+    #     nome.font.color.rgb = RGBColor(79, 129, 189)
+    #     for item in lista:
+    #         for produto in produtos:
+    #             if item.produto.id == produto.id and str(produto.grupo) == 'FERRAGENS E ACESSÓRIOS':
+    #                 print(str(produto.grupo) == '')
+    #                 run = doc.add_paragraph().add_run()
+    #
+    #                 style = doc.styles['Normal']
+    #                 font = style.font
+    #                 font.name = 'Calibri'
+    #                 font.size = docx.shared.Pt(11)
+    #                 descricao = produto.descricao
+    #                 descricao = descricao.splitlines()
+    #                 titulo = ('4.' + str(contador) + ' ' + produto.nome)
+    #                 print(titulo)
+    #                 paragrafo = doc.add_paragraph()
+    #                 nome = paragrafo.add_run((titulo))
+    #                 nome.font.bold = True
+    #                 nome.font.color.rgb = RGBColor(79, 129, 189)
+    #                 print(descricao)
+    #                 contador += 1
+    #                 for topico in descricao:
+    #                     doc.add_paragraph(
+    #                         (topico), style='List Bullet'
+    #                     )
+    #
+    # # GRUPO 5
+    # if group_check('CABEAMENTO METÁLICO'):
+    #     contador = 1
+    #     manutencao = doc.add_paragraph()
+    #     titulo = ('GRUPO 05 – CABEAMENTO METÁLICO')
+    #     nome = manutencao.add_run(titulo)
+    #     nome.font.bold = True
+    #     nome.font.color.rgb = RGBColor(79, 129, 189)
+    #     for item in lista:
+    #         for produto in produtos:
+    #             if item.produto.id == produto.id and str(produto.grupo) == 'CABEAMENTO METÁLICO':
+    #                 print(str(produto.grupo) == '')
+    #                 run = doc.add_paragraph().add_run()
+    #
+    #                 style = doc.styles['Normal']
+    #                 font = style.font
+    #                 font.name = 'Calibri'
+    #                 font.size = docx.shared.Pt(11)
+    #                 descricao = produto.descricao
+    #                 descricao = descricao.splitlines()
+    #                 titulo = ('5.' + str(contador) + ' ' + produto.nome)
+    #                 print(titulo)
+    #                 paragrafo = doc.add_paragraph()
+    #                 nome = paragrafo.add_run((titulo))
+    #                 nome.font.bold = True
+    #                 nome.font.color.rgb = RGBColor(79, 129, 189)
+    #                 print(descricao)
+    #                 contador += 1
+    #                 for topico in descricao:
+    #                     doc.add_paragraph(
+    #                         (topico), style='List Bullet'
+    #                     )
+    #
+    # # GRUPO 6
+    # if group_check('RACKS, GABINETES E ACESSÓRIOS'):
+    #     contador = 1
+    #     manutencao = doc.add_paragraph()
+    #     titulo = ('GRUPO 06 – RACKS, GABINETES E ACESSÓRIOS')
+    #     nome = manutencao.add_run(titulo)
+    #     nome.font.bold = True
+    #     nome.font.color.rgb = RGBColor(79, 129, 189)
+    #     for item in lista:
+    #         for produto in produtos:
+    #             if item.produto.id == produto.id and str(produto.grupo) == 'RACKS, GABINETES E ACESSÓRIOS':
+    #                 print(str(produto.grupo) == '')
+    #                 run = doc.add_paragraph().add_run()
+    #
+    #                 style = doc.styles['Normal']
+    #                 font = style.font
+    #                 font.name = 'Calibri'
+    #                 font.size = docx.shared.Pt(11)
+    #                 descricao = produto.descricao
+    #                 descricao = descricao.splitlines()
+    #                 titulo = ('6.' + str(contador) + ' ' + produto.nome)
+    #                 print(titulo)
+    #                 paragrafo = doc.add_paragraph()
+    #                 nome = paragrafo.add_run((titulo))
+    #                 nome.font.bold = True
+    #                 nome.font.color.rgb = RGBColor(79, 129, 189)
+    #                 print(descricao)
+    #                 contador += 1
+    #                 for topico in descricao:
+    #                     doc.add_paragraph(
+    #                         (topico), style='List Bullet'
+    #                     )
+    #
+    # # GRUPO 7
+    # if group_check('REDE ELÉTRICA'):
+    #     contador = 1
+    #     manutencao = doc.add_paragraph()
+    #     titulo = ('GRUPO 07 – REDE ELÉTRICA')
+    #     nome = manutencao.add_run(titulo)
+    #     nome.font.bold = True
+    #     nome.font.color.rgb = RGBColor(79, 129, 189)
+    #     for item in lista:
+    #         for produto in produtos:
+    #             if item.produto.id == produto.id and str(produto.grupo) == 'REDE ELÉTRICA':
+    #                 print(str(produto.grupo) == '')
+    #                 run = doc.add_paragraph().add_run()
+    #
+    #                 style = doc.styles['Normal']
+    #                 font = style.font
+    #                 font.name = 'Calibri'
+    #                 font.size = docx.shared.Pt(11)
+    #                 descricao = produto.descricao
+    #                 descricao = descricao.splitlines()
+    #                 titulo = ('7.' + str(contador) + ' ' + produto.nome)
+    #                 print(titulo)
+    #                 paragrafo = doc.add_paragraph()
+    #                 nome = paragrafo.add_run((titulo))
+    #                 nome.font.bold = True
+    #                 nome.font.color.rgb = RGBColor(79, 129, 189)
+    #                 print(descricao)
+    #                 contador += 1
+    #                 for topico in descricao:
+    #                     doc.add_paragraph(
+    #                         (topico), style='List Bullet'
+    #                     )
+    #
+    # # GRUPO 8
+    # if group_check('SERVIÇOS DE REDE'):
+    #     contador = 1
+    #     manutencao = doc.add_paragraph()
+    #     titulo = ('GRUPO 08 - SERVIÇOS DE REDE')
+    #     nome = manutencao.add_run(titulo)
+    #     nome.font.bold = True
+    #     nome.font.color.rgb = RGBColor(79, 129, 189)
+    #     for item in lista:
+    #         for produto in produtos:
+    #             if item.produto.id == produto.id and str(produto.grupo) == 'SERVIÇOS DE REDE':
+    #                 print(str(produto.grupo) == '')
+    #                 run = doc.add_paragraph().add_run()
+    #
+    #                 style = doc.styles['Normal']
+    #                 font = style.font
+    #                 font.name = 'Calibri'
+    #                 font.size = docx.shared.Pt(11)
+    #                 descricao = produto.descricao
+    #                 descricao = descricao.splitlines()
+    #                 titulo = ('8.' + str(contador) + ' ' + produto.nome)
+    #                 print(titulo)
+    #                 paragrafo = doc.add_paragraph()
+    #                 nome = paragrafo.add_run((titulo))
+    #                 nome.font.bold = True
+    #                 nome.font.color.rgb = RGBColor(79, 129, 189)
+    #                 print(descricao)
+    #                 contador += 1
+    #                 for topico in descricao:
+    #                     doc.add_paragraph(
+    #                         (topico), style='List Bullet'
+    #                     )
+    #
+    # # GRUPO 9
+    # if group_check('REDE DE DADOS E ENERGIA'):
+    #     contador = 1
+    #     manutencao = doc.add_paragraph()
+    #     titulo = ('GRUPO 09 – REDE DE DADOS E ENERGIA')
+    #     nome = manutencao.add_run(titulo)
+    #     nome.font.bold = True
+    #     nome.font.color.rgb = RGBColor(79, 129, 189)
+    #     for item in lista:
+    #         for produto in produtos:
+    #             if item.produto.id == produto.id and str(produto.grupo) == 'REDE DE DADOS E ENERGIA':
+    #                 print(str(produto.grupo) == '')
+    #                 run = doc.add_paragraph().add_run()
+    #
+    #                 style = doc.styles['Normal']
+    #                 font = style.font
+    #                 font.name = 'Calibri'
+    #                 font.size = docx.shared.Pt(11)
+    #                 descricao = produto.descricao
+    #                 descricao = descricao.splitlines()
+    #                 titulo = ('9.' + str(contador) + ' ' + produto.nome)
+    #                 print(titulo)
+    #                 paragrafo = doc.add_paragraph()
+    #                 nome = paragrafo.add_run((titulo))
+    #                 nome.font.bold = True
+    #                 nome.font.color.rgb = RGBColor(79, 129, 189)
+    #                 print(descricao)
+    #                 contador += 1
+    #                 for topico in descricao:
+    #                     doc.add_paragraph(
+    #                         (topico), style='List Bullet'
+    #                     )
+    #
+    # # GRUPO 10
+    # if group_check('SEGURANÇA'):
+    #     contador = 1
+    #     manutencao = doc.add_paragraph()
+    #     titulo = ('GRUPO 10 – SEGURANÇA')
+    #     nome = manutencao.add_run(titulo)
+    #     nome.font.bold = True
+    #     nome.font.color.rgb = RGBColor(79, 129, 189)
+    #     for item in lista:
+    #         for produto in produtos:
+    #             if item.produto.id == produto.id and str(produto.grupo) == 'SEGURANÇA':
+    #                 print(str(produto.grupo) == '')
+    #                 run = doc.add_paragraph().add_run()
+    #
+    #                 style = doc.styles['Normal']
+    #                 font = style.font
+    #                 font.name = 'Calibri'
+    #                 font.size = docx.shared.Pt(11)
+    #                 descricao = produto.descricao
+    #                 descricao = descricao.splitlines()
+    #                 alto = produto.nome
+    #                 baixo = 'asdas'
+    #                 baixo= baixo.upper()
+    #                 print(baixo)
+    #                 alto = alto.upper()
+    #                 print(alto + baixo)
+    #                 titulo = ('10.' + str(contador) + ' ' + alto)
+    #                 titulo.upper()
+    #                 paragrafo = doc.add_paragraph()
+    #                 nome = paragrafo.add_run((titulo).upper())
+    #                 nome.font.bold = True
+    #                 nome.font.color.rgb = RGBColor(79, 129, 189)
+    #                 print(descricao)
+    #                 contador += 1
+    #                 for topico in descricao:
+    #                     doc.add_paragraph(
+    #                         (topico), style='List Bullet'
+    #                     )
+    #
+    # # GRUPO 11
+    # if group_check('MANUTENÇÃO'):
+    #     contador = 1
+    #     manutencao = doc.add_paragraph()
+    #     titulo = ('GRUPO 11 – MANUTENÇÃO')
+    #     nome = manutencao.add_run(titulo)
+    #     nome.font.bold = True
+    #     nome.font.color.rgb = RGBColor(79, 129, 189)
+    #     for item in lista:
+    #         for produto in produtos:
+    #             if item.produto.id == produto.id and str(produto.grupo) == 'MANUTENÇÃO':
+    #                 print(str(produto.grupo) == '')
+    #                 run = doc.add_paragraph().add_run()
+    #
+    #                 style = doc.styles['Normal']
+    #                 font = style.font
+    #                 font.name = 'Calibri'
+    #                 font.size = docx.shared.Pt(11)
+    #                 descricao = produto.descricao
+    #                 descricao = descricao.splitlines()
+    #                 titulo = ('11.' + str(contador) + ' ' + produto.nome).upper()
+    #                 print(titulo)
+    #                 paragrafo = doc.add_paragraph()
+    #                 nome = paragrafo.add_run((titulo))
+    #                 nome.font.bold = True
+    #                 nome.font.color.rgb = RGBColor(79, 129, 189)
+    #                 print(descricao)
+    #                 contador += 1
+    #                 for topico in descricao:
+    #                     doc.add_paragraph(
+    #                         (topico), style='List Bullet'
+    #                     )
+
+    doc.save('anexos.docx')
+    return redirect('adicionar_lista')
+
+
+# FUNÇÃO PARA CHECAR SE HÁ ITENS NO GRUPO SOLICITADO.
+def group_check(grupo):
+    produtos = Produtos.objects.order_by('nome')
+    lista = ListaMaterial.objects.order_by('produto__nome')
+    for item in lista:
+        for produto in produtos:
+            if item.produto.id == produto.id and str(produto.grupo) == grupo:
+                return True
+
+    return False
