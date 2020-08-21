@@ -20,30 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b0f7edeb-a421-4e42-bdc8-84ca9237f9ad" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contatos/migrations/0019_projeto.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contatos/migrations/0020_remove_fornecedor_phone.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contatos/migrations/0021_remove_projeto_itens_lista.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/contatos/migrations/0022_projeto_itens_lista.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/formulario_projeto.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/atividadeform.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/atividadeform.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/anexos.docx" beforeDir="false" afterPath="$PROJECT_DIR$/anexos.docx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contatos/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/contatos/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contatos/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/contatos/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contatos/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/contatos/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contatos/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/contatos/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/formularios/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/formularios/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/formularios/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/formularios/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/planilha_preços.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/planilha_preços.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/confirmar_delete_produto.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/confirmar_delete_produto.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/contatos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/contatos.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/formulario_contato.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/formulario_contato.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/formulario_fornecedor.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/formulario_fornecedor.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/formulario_lista.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/formulario_lista.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/lista_fornecedor.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/lista_fornecedor.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
