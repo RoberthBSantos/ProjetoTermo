@@ -7,8 +7,8 @@
     <form method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}
-        <button type="submit" class="btn btn-success">Salvar</button>
-        <a href="{% url 'listar_fornecedor' %}" class="btn btn-primary">Cancelar</a>
+        <button type="submit" class="btn btn-outline-success">Salvar</button>
+        <button onclick='history.go(-1)' type="button" class="btn btn-outline-danger">Cancelar</button>
 
     </form>
 

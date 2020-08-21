@@ -33,4 +33,5 @@ urlpatterns = [
     path('excluir_fornecedor/<int:id>/', excluir_fornecedor, name = 'excluir_fornecedor'),
     path('excluir_prod_lista/<int:id>',excluir_prod_lista, name = 'excluir_prod_lista'),
     path('atualizar_prod_lista/<int:id>', atualizar_prod_lista, name = 'atualizar_prod_lista'),
+    path('excluir_lista_produto/<int:id>',excluir_lista_produto, name = 'excluir_lista_produto'),
 ]

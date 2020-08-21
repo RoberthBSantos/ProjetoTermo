@@ -32,7 +32,7 @@
         <li> <b>{{ fornecedor.razao_social }} <br> </b> {{ fornecedor.telefone }}
 
         <a href="{% url 'atualizar_fornecedor' fornecedor.id %}">Editar</a>
-        <button onclick="confirmarDelete()">Deletar</button></li><hr>
+        <button onclick="confirmarDelete()" type="button" class="btn btn-outline-danger">Deletar</button></li><hr>
 
                      <script>
                         function confirmarDelete()

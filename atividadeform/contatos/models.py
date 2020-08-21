@@ -1,13 +1,11 @@
 from django.db import models
 
 # Create your models here.
-from phone_field import PhoneField
 
 
 class Fornecedor(models.Model):
     razao_social = models.CharField(max_length = 50)
     telefone = models.IntegerField(blank= True, null= True)
-    phone = PhoneField(blank = True,help_text='Contact phone number')
 
     def __str__(self):
         return self.razao_social
@@ -39,4 +37,10 @@ class ListaMaterial (models.Model):
     # def __str__(self):
     #     return self.quantidade,  self.produto.nome
 
+class Projeto(models.Model):
+    nome_projeto = models.CharField(max_length = 100)
+    itens_lista = models.ManyToManyField(ListaMaterial)
+
+    def __str__(self):
+        return self.nome_projeto
 

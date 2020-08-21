@@ -8,8 +8,11 @@
     <form method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}
-        <button type="submit" class="btn btn-success">Adicionar a lista</button>  <a href="{% url 'gerar_documento' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
+        <div class="alert alert-info clearfix">
+        <button type="submit" class="btn btn-success pull-right" >Adicionar a lista</button>  <a href="{% url 'gerar_documento' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
          <a href="{% url 'gerar_docx' %}" class="btn btn-primary">Gerar arquivo docx</a>
+
+            </div>
 
     </form>
     <br>
@@ -47,7 +50,7 @@
                 <a href="{%url 'atualizar_prod_lista' produto.id %}" class="list-group-item list-group-item-action">{{ produto.produto }}
                 </a>
             <span class="badge badge-primary badge-pill">{{ produto.quantidade }}</span>
-                <a href="javascript:confirmarDelete();">
+                <a href="{%url 'excluir_lista_produto' produto.id %}">
                     <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                       <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                       <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
@@ -63,7 +66,7 @@
                         var r=confirm("Excluir Produto da lista?");
                         if (r==true)
                           {
-                          location.href="{% url 'excluir_prod_lista' produto.id %}"
+                          location.href="{% url 'excluir_produto_lista' produto.id %}"
                           }
                         }
                      </script>

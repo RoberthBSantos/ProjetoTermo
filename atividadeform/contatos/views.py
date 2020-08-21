@@ -57,15 +57,15 @@ def atualizar_fornecedor(request, id):
     return render(request, 'formulario_fornecedor.html', {'form': form})
 
 def atualizar_prod_lista(request, id):
-    produtos = ListaMaterial;
+    produtos = ListaMaterial.objects.order_by('produto__nome')
     produto = get_object_or_404(ListaMaterial, pk=id)
     form = FormularioLista(request.POST or None, instance=produto)
 
     if form.is_valid():
         form.save()
-        return nova_lista(request)
+        return redirect('adicionar_lista')
 
-    return render(request, 'formulario_lista.html', {'form': form})
+    return render(request, 'formulario_lista.html', {'form': form},)
 
 
 def excluir_produto(request,id):
@@ -82,19 +82,33 @@ def excluir_produto(request,id):
 
     return render(request, 'confirmar_delete_produto.html', {'produto': produto})
 
-def excluir_prod_lista(request,id):
-    produto = get_object_or_404(ListaMaterial, id = id)
-    form = FormularioLista(request.POST or None)
-    produtos = ListaMaterial.objects.all()
-    contatos = Produtos.objects.all()
+def excluir_lista_produto(request,id):
+    produto = get_object_or_404(ListaMaterial, id =  id)
+    form = FormularioContato(request.POST or None, request.FILES or None, instance = produto)
+    if request.method == 'POST':
+        produto.delete()
+        return redirect('adicionar_lista')
 
-    if request.method is not 'POST':
-        post_delete=ListaMaterial.objects.filter(id=id)
-        post_delete.delete()
-        produtos = ListaMaterial.objects.all()
-        contatos = Produtos.objects.all()
-        return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
-    return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
+    # if request.method is not 'POST':
+    #     post_delete=Contatos.objects.filter(id=id)
+    #     post_delete.delete()
+    #     return redirect('lista_contatos')
+
+    return render(request, 'confirmar_delete_produto.html', {'produto': produto})
+
+# def excluir_prod_lista(request,id):
+#     produto = get_object_or_404(ListaMaterial, id = id)
+#     form = FormularioLista(request.POST or None)
+#     produtos = ListaMaterial.objects.all()
+#     contatos = Produtos.objects.all()
+#
+#     if request.method is not 'POST':
+#         post_delete=ListaMaterial.objects.filter(id=id)
+#         post_delete.delete()
+#         produtos = ListaMaterial.objects.all()
+#         contatos = Produtos.objects.all()
+#         return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
+#     return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
 
 def novo_fornecedor(request):
     form = FormularioFornecedor(request.POST or None)
@@ -124,7 +138,7 @@ def nova_lista(request):
         form.save()
         produtos = ListaMaterial.objects.order_by('produto__nome')
 
-        return render(request, 'formulario_lista.html', {'form': form,'produtos':produtos})
+        return redirect('adicionar_lista')
 
     produtos = ListaMaterial.objects.order_by('produto__nome')
 
@@ -134,11 +148,11 @@ def nova_lista(request):
     return render(request, 'formulario_lista.html', {'form': form,'produtos':produtos})
 
 def excluir_prod_lista(request,id):
-    produtos = ListaMaterial.objects.order_by('produto__nome')
     if request.method is not 'POST':
-        prod_delete=ListaMaterial.objects.filter(id=id)
-        prod_delete.delete()
-        return nova_lista(request)
+        print(id)
+        ListaMaterial.objects.filter(id=id).delete()
+
+        return redirect('adicionar_lista')
 
 def gerar_xlsx(request):
 

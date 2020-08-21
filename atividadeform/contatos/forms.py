@@ -1,6 +1,6 @@
 from django.forms import ModelForm, DateInput
 from phone_field import PhoneNumber
-from .models import Produtos, ListaMaterial, Fornecedor
+from .models import Produtos, ListaMaterial, Fornecedor, Projeto
 
 class FormularioContato(ModelForm):
     class Meta:
@@ -19,3 +19,9 @@ class FormularioFornecedor(ModelForm):
     class Meta:
         model = Fornecedor
         fields = ['razao_social','telefone']
+
+class FormularioProjeto(ModelForm):
+    class Meta:
+        model = Projeto
+        fields = ['nome_projeto']
+        itens_lista = ListaMaterial.objects.all()
