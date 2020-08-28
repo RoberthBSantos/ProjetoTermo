@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Produtos, ListaMaterial, Fornecedor, Grupos
-from .forms import FormularioContato, FormularioLista, FormularioFornecedor
+from .models import Produtos, ListaMaterial, Fornecedor, Grupos, Projeto
+from .forms import FormularioContato, FormularioLista, FormularioFornecedor, FormularioProjeto
 import openpyxl
 from openpyxl.styles import Font, colors, Alignment, Border, Side, PatternFill
 import docx
@@ -128,7 +128,7 @@ def excluir_fornecedor(request,id):
     if request.method is not 'POST':
         forn_delete=Fornecedor.objects.filter(id=id)
         forn_delete.delete()
-        return redirect('index')
+        return redirect('lista_fornecedor')
 
 
 def nova_lista(request):
@@ -153,6 +153,19 @@ def excluir_prod_lista(request,id):
         ListaMaterial.objects.filter(id=id).delete()
 
         return redirect('adicionar_lista')
+
+
+def novo_projeto(request):
+    listas = ListaMaterial.objects.order_by('produto__nome')
+
+    form = FormularioProjeto(request.POST or None)
+
+    if form.is_valid():
+        projeto = Projeto(1,'form.Meta.model.itens_lista',[52] )
+        projeto.save()
+        return redirect('adicionar_lista')
+    return render(request, 'formulario_projeto.html', {'form': form})
+
 
 def gerar_xlsx(request):
 

@@ -24,4 +24,3 @@ class FormularioProjeto(ModelForm):
     class Meta:
         model = Projeto
         fields = ['nome_projeto']
-        itens_lista = ListaMaterial.objects.all()
