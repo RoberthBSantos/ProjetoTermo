@@ -4,13 +4,14 @@
 {%block title%} Formulario {%endblock%}
 {% block main %}
     <h1>Nova Lista</h1>
-    <input class="form-control form-control-lg" type="text" placeholder="Nome da lista">
+<!--    <input type="text" class="form-control" id="documento" name="documento" placeholder="Nome do Projeto">-->
     <form method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}
         <div class="alert alert-info clearfix">
         <button type="submit" class="btn btn-success pull-right" >Adicionar a lista</button>  <a href="{% url 'gerar_documento' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
          <a href="{% url 'gerar_docx' %}" class="btn btn-primary">Gerar arquivo docx</a>
+            <a href="{% url 'listar_downloads' %}" class="btn btn-primary">Lista de Downloads</a>
 
             </div>
 

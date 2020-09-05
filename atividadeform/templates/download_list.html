@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load bootstrap %}
+
+{%block title%} Lista de Downlaod {%endblock%}
+{% block main %}
+    {% for file in files %}
+        <li>{{file.title}}</li>
+        <a href="{{file.docupload.url}}" download="{{file.docupload.url}}">Download</a>
+    {% endfor %}
+
+
+{% endblock %}

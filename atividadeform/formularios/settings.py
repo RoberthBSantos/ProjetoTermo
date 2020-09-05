@@ -25,7 +25,9 @@ SECRET_KEY = 'shga9c$vj%f85jg#951=qatt3vz#t=ci-*t!k97_v0n)d8%hr('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.19.246']
+ALLOWED_HOSTS = ['192.168.19.246',
+                 '127.0.0.1',
+                 '10.101.40.55']
 
 
 # Application definition
@@ -122,3 +124,6 @@ DATE_INPUT_FORMATS = ['%d/%m/%Y']
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS=[os.path.join(BASE_DIR,"static")]
+MEDIA_URL="/media/"
+MEDIA_ROOT=os.path.join(BASE_DIR,'documents')

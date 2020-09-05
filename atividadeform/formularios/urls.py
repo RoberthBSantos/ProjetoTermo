@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from contatos.views import *
+from django.conf.urls.static import static
+from django.conf.urls import url
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,4 +38,10 @@ urlpatterns = [
     path('atualizar_prod_lista/<int:id>', atualizar_prod_lista, name = 'atualizar_prod_lista'),
     path('excluir_lista_produto/<int:id>',excluir_lista_produto, name = 'excluir_lista_produto'),
     path('novo_projeto',novo_projeto, name = 'novo_projeto'),
+    url(r'^download/(?P<path>.*)$',serve,{'document_root':settings.MEDIA_ROOT}),
+    path('listar_downloads',listar_download, name = 'listar_downloads'),
 ]
+
+if settings.DEBUG:
+    urlpatterns+=static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

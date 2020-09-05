@@ -23,4 +23,4 @@ class FormularioFornecedor(ModelForm):
 class FormularioProjeto(ModelForm):
     class Meta:
         model = Projeto
-        fields = ['nome_projeto']
+        fields = ['nome_projeto','itens_lista']

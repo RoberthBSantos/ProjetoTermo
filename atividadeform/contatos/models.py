@@ -34,8 +34,8 @@ class ListaMaterial (models.Model):
     quantidade = models.IntegerField(null=False, blank=False)
     produto = models.ForeignKey(Produtos, null=True, blank= True, on_delete=models.PROTECT)
 
-    # def __str__(self):
-    #     return self.quantidade,  self.produto.nome
+    def __str__(self):
+         return str(self.quantidade)+ ' ' +  self.produto.nome
 
 class Projeto(models.Model):
     nome_projeto = models.CharField(max_length = 100)
@@ -43,4 +43,12 @@ class Projeto(models.Model):
 
     def __str__(self):
         return self.nome_projeto
+
+class DocFiles(models.Model):
+    docupload= models.FileField(max_length=500)
+    title=models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.title
+
 

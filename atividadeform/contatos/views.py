@@ -1,11 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Produtos, ListaMaterial, Fornecedor, Grupos, Projeto
+from .models import Produtos, ListaMaterial, Fornecedor, Grupos, Projeto, DocFiles
 from .forms import FormularioContato, FormularioLista, FormularioFornecedor, FormularioProjeto
 import openpyxl
 from openpyxl.styles import Font, colors, Alignment, Border, Side, PatternFill
 import docx
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from django.http import HttpResponse, Http404
+import os
+from django.conf import settings
+from django.core.files import File
 
 
 def listar_contatos(request):
@@ -161,14 +165,14 @@ def novo_projeto(request):
     form = FormularioProjeto(request.POST or None)
 
     if form.is_valid():
-        projeto = Projeto(1,'form.Meta.model.itens_lista',[52] )
-        projeto.save()
+        form.save()
         return redirect('adicionar_lista')
     return render(request, 'formulario_projeto.html', {'form': form})
 
 
 def gerar_xlsx(request):
 
+    nome = request.GET.get('documento', None)
     produtos = Produtos.objects.order_by('nome')
     lista = ListaMaterial.objects.order_by('produto__nome')
 
@@ -315,12 +319,14 @@ def gerar_xlsx(request):
     planilha['G' + str(cont)].border = bordaSuperior
     planilha['H' + str(cont)].border = bordaSuperior
 
+
     wb.save('planilha_preços.xlsx')
 
     return redirect('lista_contatos')
 
 def gerar_docx(request):
 
+    nome = request.GET.get('documento', None)
     produtos = Produtos.objects.order_by('nome')
     lista = ListaMaterial.objects.order_by('produto__nome')
     grupos = Grupos.objects.all()
@@ -751,7 +757,9 @@ def gerar_docx(request):
     #                         (topico), style='List Bullet'
     #                     )
 
-    doc.save('anexos.docx')
+    doc.save('documents/documents/media/'+'anexos.docx')
+    gerar_doc()
+
     return redirect('adicionar_lista')
 
 
@@ -765,3 +773,28 @@ def group_check(grupo):
                 return True
 
     return False
+
+def gerar_doc():
+    f = File(open(os.path.join(settings.MEDIA_ROOT,'documents/media/anexos.docx'),'rb'))
+    doc = DocFiles()
+    doc.docupload= f
+
+    doc.title = 'teste'
+
+    doc.save('teste')
+
+
+
+
+def download_doc(path):
+    file_path=os.path.join(settings.MEDIA_ROOT,path)
+    if os.path.exists(file_path):
+        with open(file_path,'rb') as fh:
+            response = HttpResponse(fh.read(),content_type="aplication/docupload" )
+            response['Content-Disposition'] = 'inline;  filename='+os.path.basename(file_path)
+            return response
+        raise Http404
+
+def listar_download(request):
+    files = {'files' : DocFiles.objects.all()}
+    return render(request,'download_list.html', files)
