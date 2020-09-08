@@ -328,7 +328,6 @@ def gerar_docx(nome_doc):
     produtos = Produtos.objects.order_by('nome')
     lista = ListaMaterial.objects.order_by('produto__nome')
     grupos = Grupos.objects.all()
-    contador = 1
     cgrupo = 1
 
     doc = docx.Document()
@@ -458,3 +457,15 @@ def get_name_xlsx(request):
     else:
         form = NameForm()
     return render(request,'formulario_docs.html', {'form' : form})
+
+def delete_doc(request,id):
+
+    documento = get_object_or_404(DocFiles, id =  id)
+    print(str(documento.docupload))
+    try:
+        os.remove('documents/documents/media/' + documento.title +'.docx')
+    except:
+        os.remove('documents/documents/media/' + documento.title + '.xlsx')
+    os.remove(str(documento.docupload))
+    DocFiles.objects.filter(id=id).delete()
+    return redirect('listar_downloads')

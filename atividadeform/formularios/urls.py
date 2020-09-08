@@ -42,6 +42,7 @@ urlpatterns = [
     path('listar_downloads',listar_download, name = 'listar_downloads'),
     path('formulario_docs',get_name_docx, name = 'formulario_docs'),
     path('formulario_xlsx',get_name_xlsx,name = 'formulario_xlsx'),
+    path('delete_doc/<int:id>', delete_doc, name = 'delete_doc'),
 ]
 
 if settings.DEBUG:
