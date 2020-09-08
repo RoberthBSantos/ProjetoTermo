@@ -40,6 +40,8 @@ urlpatterns = [
     path('novo_projeto',novo_projeto, name = 'novo_projeto'),
     url(r'^download/(?P<path>.*)$',serve,{'document_root':settings.MEDIA_ROOT}),
     path('listar_downloads',listar_download, name = 'listar_downloads'),
+    path('formulario_docs',get_name_docx, name = 'formulario_docs'),
+    path('formulario_xlsx',get_name_xlsx,name = 'formulario_xlsx'),
 ]
 
 if settings.DEBUG:

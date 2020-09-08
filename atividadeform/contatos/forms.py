@@ -1,4 +1,5 @@
 from django.forms import ModelForm, DateInput
+from django import forms
 from phone_field import PhoneNumber
 from .models import Produtos, ListaMaterial, Fornecedor, Projeto
 
@@ -24,3 +25,6 @@ class FormularioProjeto(ModelForm):
     class Meta:
         model = Projeto
         fields = ['nome_projeto','itens_lista']
+
+class NameForm(forms.Form):
+    project_name = forms.CharField(label='Nome do Projeto', max_length=100)

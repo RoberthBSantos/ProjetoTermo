@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load bootstrap %}
+
+{%block title%} Cadastro Fornecedor {%endblock%}
+{% block main %}
+    <h1>Gerar documento</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-outline-success">Gerar arquivo</button>
+        <button onclick='history.go(-1)' type="button" class="btn btn-outline-danger">Cancelar</button>
+
+    </form>
+
+
+{% endblock %}

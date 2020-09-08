@@ -9,8 +9,8 @@
         {% csrf_token %}
         {{ form|bootstrap }}
         <div class="alert alert-info clearfix">
-        <button type="submit" class="btn btn-success pull-right" >Adicionar a lista</button>  <a href="{% url 'gerar_documento' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
-         <a href="{% url 'gerar_docx' %}" class="btn btn-primary">Gerar arquivo docx</a>
+        <button type="submit" class="btn btn-success pull-right" >Adicionar a lista</button>  <a href="{% url 'formulario_xlsx' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
+         <a href="{% url 'formulario_docs' %}" class="btn btn-primary">Gerar docx</a>
             <a href="{% url 'listar_downloads' %}" class="btn btn-primary">Lista de Downloads</a>
 
             </div>
