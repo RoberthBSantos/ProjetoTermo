@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Produtos, ListaMaterial, Fornecedor, Grupos, Projeto, DocFiles
-from .forms import FormularioContato, FormularioLista, FormularioFornecedor, FormularioProjeto, NameForm
+from .models import Produtos, ListaMaterial, Fornecedor, Grupos, DocFiles,Projeto
+from .forms import FormularioContato, FormularioLista, FormularioFornecedor, NameForm,FormularioProjeto
 import openpyxl
 from openpyxl.styles import Font, colors, Alignment, Border, Side, PatternFill
 import docx
+from django.core.paginator import Paginator
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from django.http import HttpResponse, Http404
@@ -17,18 +18,27 @@ def listar_contatos(request):
 
     if busca:
         # contatos = Contatos.objects.all()
-        produtos = Produtos.objects.filter(nome__icontains = busca) or Produtos.objects.filter(fabricante__icontains = busca)
+        produtos_list = Produtos.objects.filter(nome__icontains = busca) or Produtos.objects.filter(fabricante__icontains = busca)
     else:
-        produtos = Produtos.objects.order_by('nome')
+        produtos_list = Produtos.objects.order_by('nome')
+
+    paginator = Paginator(produtos_list,5)
+
+    page = request.GET.get('page')
+
+    produtos = paginator.get_page(page)
 
     return render(request, 'contatos.html', {'contatos' : produtos})
 
-# def listar_produtos(request):
-#     busca = request.GET.get('pesquisa', None)
-#
-#     produtos = ListaMaterial.objects.all()
-#
-#     return render(request, 'formulario_lista.html')
+
+def novo_projeto(request):
+    form = FormularioProjeto(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('lista_projetos')
+
+    return render(request, 'formulario_projeto.html', {'form' : form})
+
 
 def novo_contato(request):
     form = FormularioContato(request.POST or None)
@@ -89,9 +99,10 @@ def excluir_produto(request,id):
 def excluir_lista_produto(request,id):
     produto = get_object_or_404(ListaMaterial, id =  id)
     form = FormularioContato(request.POST or None, request.FILES or None, instance = produto)
+    id_lista = produto.projeto.id
     if request.method == 'POST':
         produto.delete()
-        return redirect('adicionar_lista')
+        return redirect('lista/id/',id_lista)
 
     # if request.method is not 'POST':
     #     post_delete=Contatos.objects.filter(id=id)
@@ -100,19 +111,19 @@ def excluir_lista_produto(request,id):
 
     return render(request, 'confirmar_delete_produto.html', {'produto': produto})
 
-# def excluir_prod_lista(request,id):
-#     produto = get_object_or_404(ListaMaterial, id = id)
-#     form = FormularioLista(request.POST or None)
-#     produtos = ListaMaterial.objects.all()
-#     contatos = Produtos.objects.all()
-#
-#     if request.method is not 'POST':
-#         post_delete=ListaMaterial.objects.filter(id=id)
-#         post_delete.delete()
-#         produtos = ListaMaterial.objects.all()
-#         contatos = Produtos.objects.all()
-#         return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
-#     return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
+def excluir_prod_lista(request,id):
+    produto = get_object_or_404(ListaMaterial, id = id)
+    form = FormularioLista(request.POST or None)
+    produtos = ListaMaterial.objects.all()
+    contatos = Produtos.objects.all()
+
+    if request.method is not 'POST':
+        post_delete=ListaMaterial.objects.filter(id=id)
+        post_delete.delete()
+        produtos = ListaMaterial.objects.all()
+        contatos = Produtos.objects.all()
+        return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
+    return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
 
 def novo_fornecedor(request):
     form = FormularioFornecedor(request.POST or None)
@@ -135,39 +146,33 @@ def excluir_fornecedor(request,id):
         return redirect('lista_fornecedor')
 
 
-def nova_lista(request):
+def nova_lista(request,id):
     form = FormularioLista(request.POST or None)
+
 
     if form.is_valid():
         form.save()
+        vincular_projeto(id)
+
         produtos = ListaMaterial.objects.order_by('produto__nome')
 
-        return redirect('adicionar_lista')
+        return redirect('lista/id/',id)
 
-    produtos = ListaMaterial.objects.order_by('produto__nome')
 
-    # for i in produtos:
-    #     print(i.produto.fabricante)
+    produtos = ListaMaterial.objects.filter(projeto = id).order_by('produto__nome')
+    nome = Projeto.objects.get(id=id).nome_projeto
 
-    return render(request, 'formulario_lista.html', {'form': form,'produtos':produtos})
+
+
+    return render(request, 'formulario_lista.html', {'form': form,'produtos':produtos, 'nome' : nome})
 
 def excluir_prod_lista(request,id):
     if request.method is not 'POST':
-        print(id)
+        id_lista = ListaMaterial.objects.filter(id=id).projeto
         ListaMaterial.objects.filter(id=id).delete()
 
-        return redirect('adicionar_lista')
+        return redirect('lista/id/',id_lista)
 
-
-def novo_projeto(request):
-    listas = ListaMaterial.objects.order_by('produto__nome')
-
-    form = FormularioProjeto(request.POST or None)
-
-    if form.is_valid():
-        form.save()
-        return redirect('adicionar_lista')
-    return render(request, 'formulario_projeto.html', {'form': form})
 
 
 def gerar_xlsx(nome_doc):
@@ -253,17 +258,19 @@ def gerar_xlsx(nome_doc):
             if item.produto.id == produto.id:
                 descricao = produto.descricao.replace(';','')
                 descricao = descricao.splitlines()
-                print(descricao)
+
                 planilha['A' + str(cont)] = produto.nome
                 planilha['B' + str(cont)] = produto.modelo
                 planilha['C' + str(cont)] = produto.fabricante
                 planilha['D' + str(cont)] = produto.fornecedor.razao_social
                 planilha['E' + str(cont)] = item.quantidade
                 planilha['F' + str(cont)] = produto.valor
+                planilha['F' + str(cont)].number_format ='##,##0.00'
                 planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['H' + str(cont)] = '= E' + str(cont) + '*F' + str(cont)
+                planilha['H' + str(cont)].number_format ='#,##0.00'
 
-                # print(format(produto.data, "%d/%m/%Y"))
+
 
                 planilha['A' + str(cont)].font = ft_item
                 planilha['B' + str(cont)].font = ft_item
@@ -305,6 +312,7 @@ def gerar_xlsx(nome_doc):
         cont += 1
 
     planilha['H'+str(cont)] = '= SUM(H2:H' + str(cont-1) +')'
+    planilha['H' + str(cont)].number_format = '#,##0.00'
     planilha['H' + str(cont)].font = ft_item_negrito
     planilha['H' + str(cont)].alignment = alinhamento
     planilha['H' + str(cont)].fill = preenchimentoVerde
@@ -331,12 +339,6 @@ def gerar_docx(nome_doc):
     cgrupo = 1
 
     doc = docx.Document()
-    # run = doc.add_paragraph().add_run()
-    # '''Apply style'''
-    # style = doc.styles['Normal']
-    # font = style.font
-    # font.name = 'Calibri'
-    # font.size = docx.shared.Pt(11)
 
     doc.add_paragraph('ANEXO A – ESPECIFICAÇÕES TÉCNICAS').alignment = WD_ALIGN_PARAGRAPH.CENTER
     doc.paragraphs[0].runs[0].font.size = Pt(16)
@@ -365,7 +367,7 @@ def gerar_docx(nome_doc):
             for item in lista:
                 for produto in produtos:
                     if item.produto.id == produto.id and str(produto.grupo) == grupo.nome:
-                        print(str(produto.grupo) == '')
+
                         run = doc.add_paragraph().add_run()
 
                         style = doc.styles['Normal']
@@ -375,12 +377,12 @@ def gerar_docx(nome_doc):
                         descricao = produto.descricao
                         descricao = descricao.splitlines()
                         titulo = (str(cgrupo)+'.' + str(contador) + ' ' + produto.nome)
-                        print(titulo)
+
                         paragrafo = doc.add_paragraph()
                         nome = paragrafo.add_run((titulo))
                         nome.font.bold = True
                         nome.font.color.rgb = RGBColor(79, 129, 189)
-                        print(descricao)
+
                         contador += 1
                         for topico in descricao:
                             doc.add_paragraph(
@@ -461,7 +463,6 @@ def get_name_xlsx(request):
 def delete_doc(request,id):
 
     documento = get_object_or_404(DocFiles, id =  id)
-    print(str(documento.docupload))
     try:
         os.remove('documents/documents/media/' + documento.title +'.docx')
     except:
@@ -469,3 +470,30 @@ def delete_doc(request,id):
     os.remove(str(documento.docupload))
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')
+
+def limpar_lista(request):
+    lista = ListaMaterial.objects.all()
+
+    for item in lista:
+        item.delete()
+
+    return redirect('adicionar_lista')
+
+def listar_projetos(request):
+    busca = request.GET.get('pesquisa', None)
+
+    if busca:
+        # contatos = Contatos.objects.all()
+        projetos = {'projetos' :Projeto.objects.filter(nome_projeto__icontains=busca)}
+    else:
+        projetos = {'projetos' : Projeto.objects.order_by('nome_projeto')}
+
+    return render(request, 'index.html', projetos)
+
+def vincular_projeto(id):
+    projeto = Projeto.objects.get(id= id)
+    lista = ListaMaterial.objects.get(projeto = None)
+    lista.projeto = projeto
+    lista.save()
+
+

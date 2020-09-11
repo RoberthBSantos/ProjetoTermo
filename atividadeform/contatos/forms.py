@@ -1,9 +1,10 @@
 from django.forms import ModelForm, DateInput
 from django import forms
-from phone_field import PhoneNumber
 from .models import Produtos, ListaMaterial, Fornecedor, Projeto
 
+
 class FormularioContato(ModelForm):
+    valor = forms.DecimalField(max_digits=8, decimal_places=2, localize=True)
     class Meta:
         model = Produtos
         fields = ['nome','fabricante','fornecedor','modelo','grupo','descricao','valor','data']
@@ -24,7 +25,7 @@ class FormularioFornecedor(ModelForm):
 class FormularioProjeto(ModelForm):
     class Meta:
         model = Projeto
-        fields = ['nome_projeto','itens_lista']
+        fields = ['nome_projeto']
 
 class NameForm(forms.Form):
     project_name = forms.CharField(label='Nome do Projeto', max_length=100)

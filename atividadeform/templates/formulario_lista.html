@@ -9,9 +9,11 @@
         {% csrf_token %}
         {{ form|bootstrap }}
         <div class="alert alert-info clearfix">
-        <button type="submit" class="btn btn-success pull-right" >Adicionar a lista</button>  <a href="{% url 'formulario_xlsx' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
+        <button type="submit" class="btn btn-success pull-right" >Adicionar a lista</button>
+            <a href="{% url 'formulario_xlsx' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
          <a href="{% url 'formulario_docs' %}" class="btn btn-primary">Gerar docx</a>
-            <a href="{% url 'listar_downloads' %}" class="btn btn-primary">Lista de Downloads</a>
+<!--            <a href="{% url 'listar_downloads' %}" class="btn btn-primary">Lista de Downloads</a>-->
+            <button type="button" class="btn btn-danger" onclick="confirmarDelete()">Limpar Lista</button>
 
             </div>
 
@@ -24,26 +26,26 @@
             <!--<li>{{ produto.produto }} <b>{{ produto.quantidade }}</b>-->
 
 
-                <!--&lt;!&ndash;<button onclick="confirmarDelete()">Deletar</button></li><hr>&ndash;&gt;-->
-                <!--<button type="button" class="btn btn-danger" onclick="confirmarDelete()">Deletar</button><hr>-->
+                <!--<button onclick="confirmarDelete()">Deletar</button></li><hr>-->
 
-                     <!--<script>-->
-                        <!--function confirmarDelete()-->
-                        <!--{-->
-                        <!--var x;-->
-                        <!--var r=confirm("Excluir postagem?");-->
-                        <!--if (r==true)-->
-                          <!--{-->
-                          <!--location.href="{% url 'excluir_produto_lista' produto.id %}"-->
-                          <!--}-->
-                        <!--}-->
-                     <!--</script>-->
+
+<!--                     <script>-->
+<!--                        function confirmarDelete()-->
+<!--                        {-->
+<!--                        var x;-->
+<!--                        var r=confirm("Excluir postagem?");-->
+<!--                        if (r==true)-->
+<!--                          {-->
+<!--                          location.href="{% url 'limpar_lista' %}"-->
+<!--                          }-->
+<!--                        }-->
+<!--                     </script>-->
 
         <!--{% endfor %}-->
 
         <div class="list-group">
             <a href="#" class="list-group-item list-group-item-action active">
-                Produtos adicionados a lista
+                Produtos adicionados a lista {{nome}}
              </a>
             {% for produto in produtos %}
                   <!--<a href="#" class="list-group-item list-group-item-action">{{ produto.produto }} | <b>{{ produto.quantidade }} UND</b></a>-->
@@ -64,10 +66,10 @@
                         function confirmarDelete()
                         {
                         var x;
-                        var r=confirm("Excluir Produto da lista?");
+                        var r=confirm("Limpar lista de material?");
                         if (r==true)
                           {
-                          location.href="{% url 'excluir_produto_lista' produto.id %}"
+                          location.href="{% url 'limpar_lista' %}"
                           }
                         }
                      </script>
