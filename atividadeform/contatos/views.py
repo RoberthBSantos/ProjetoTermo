@@ -71,15 +71,16 @@ def atualizar_fornecedor(request, id):
     return render(request, 'formulario_fornecedor.html', {'form': form})
 
 def atualizar_prod_lista(request, id):
-    produtos = ListaMaterial.objects.order_by('produto__nome')
+
     produto = get_object_or_404(ListaMaterial, pk=id)
     form = FormularioLista(request.POST or None, instance=produto)
-
+    projeto = produto.projeto
     if form.is_valid():
         form.save()
-        return redirect('adicionar_lista')
+        return redirect('lista/id/',produto.projeto.id)
 
-    return render(request, 'formulario_lista.html', {'form': form},)
+
+    return render(request, 'formulario_lista.html', {'form': form, 'projeto':projeto},)
 
 
 def excluir_produto(request,id):
@@ -160,11 +161,11 @@ def nova_lista(request,id):
 
 
     produtos = ListaMaterial.objects.filter(projeto = id).order_by('produto__nome')
-    nome = Projeto.objects.get(id=id).nome_projeto
+    projeto = Projeto.objects.get(id=id)
 
 
 
-    return render(request, 'formulario_lista.html', {'form': form,'produtos':produtos, 'nome' : nome})
+    return render(request, 'formulario_lista.html', {'form': form,'produtos':produtos, 'projeto' : projeto})
 
 def excluir_prod_lista(request,id):
     if request.method is not 'POST':
@@ -175,10 +176,10 @@ def excluir_prod_lista(request,id):
 
 
 
-def gerar_xlsx(nome_doc):
-
+def gerar_xlsx(request,id):
+    nome_doc = Projeto.objects.get(id=id).nome_projeto
     produtos = Produtos.objects.order_by('nome')
-    lista = ListaMaterial.objects.order_by('produto__nome')
+    lista = ListaMaterial.objects.filter(projeto = id).order_by('produto__nome')
 
     wb = openpyxl.Workbook()
     cont = 2
@@ -327,14 +328,14 @@ def gerar_xlsx(nome_doc):
     planilha['H' + str(cont)].border = bordaSuperior
 
 
-    wb.save('documents/documents/media/' +nome_doc+'.xlsx')
+    wb.save('documents/documents/media/Planilha ' +nome_doc+'.xlsx')
     gerar_doc(nome_doc)
+    return redirect ('listar_downloads')
 
-    return redirect('lista_contatos')
-
-def gerar_docx(nome_doc):
+def gerar_docx(request,id):
+    nome_doc = Projeto.objects.get(id=id).nome_projeto
     produtos = Produtos.objects.order_by('nome')
-    lista = ListaMaterial.objects.order_by('produto__nome')
+    lista = ListaMaterial.objects.filter(projeto = id).order_by('produto__nome')
     grupos = Grupos.objects.all()
     cgrupo = 1
 
@@ -391,10 +392,10 @@ def gerar_docx(nome_doc):
             cgrupo += 1
 
 
-    doc.save('documents/documents/media/' + nome_doc +'.docx')
+    doc.save('documents/documents/media/Anexos ' + nome_doc +'.docx')
     gerar_doc(nome_doc)
 
-    return redirect('adicionar_lista')
+    return redirect ('listar_downloads')
 
 
 # FUNÇÃO PARA CHECAR SE HÁ ITENS NO GRUPO SOLICITADO.
@@ -410,15 +411,22 @@ def group_check(grupo):
 
 def gerar_doc(nome):
     try:
-        f = File(open(os.path.join(settings.MEDIA_ROOT,'documents/media/' + nome +'.docx'),'rb'))
+        f = File(open(os.path.join(settings.MEDIA_ROOT,'documents/media/Anexos ' + nome +'.docx'),'rb'))
+        doc = DocFiles()
+        doc.docupload = f
+
+        doc.title ='Anexos' + nome
+
+        doc.save(nome)
     except:
-        f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/' + nome + '.xlsx'), 'rb'))
-    doc = DocFiles()
-    doc.docupload= f
+        f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
+        doc = DocFiles()
+        doc.docupload = f
 
-    doc.title = nome
+        doc.title ='Planilha ' + nome
 
-    doc.save(nome)
+        doc.save(nome)
+
 
 
 
@@ -436,7 +444,7 @@ def listar_download(request):
     files = {'files' : DocFiles.objects.all()}
     return render(request,'download_list.html', files)
 
-def get_name_docx(request):
+def get_name_docx(request,id):
     if request.method == 'POST':
         form = NameForm(request.POST)
         if form.is_valid():
@@ -464,9 +472,9 @@ def delete_doc(request,id):
 
     documento = get_object_or_404(DocFiles, id =  id)
     try:
-        os.remove('documents/documents/media/' + documento.title +'.docx')
+        os.remove('documents/documents/media/Anexos ' + documento.title +'.docx')
     except:
-        os.remove('documents/documents/media/' + documento.title + '.xlsx')
+        os.remove('documents/documents/media/Planilha ' + documento.title + '.xlsx')
     os.remove(str(documento.docupload))
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')

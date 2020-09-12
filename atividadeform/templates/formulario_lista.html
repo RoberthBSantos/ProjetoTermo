@@ -10,8 +10,8 @@
         {{ form|bootstrap }}
         <div class="alert alert-info clearfix">
         <button type="submit" class="btn btn-success pull-right" >Adicionar a lista</button>
-            <a href="{% url 'formulario_xlsx' %}" class="btn btn-primary">Gerar arquivo xlsx</a>
-         <a href="{% url 'formulario_docs' %}" class="btn btn-primary">Gerar docx</a>
+            <a href="{% url 'gerar_documento' projeto.id %}" class="btn btn-primary">Gerar arquivo xlsx</a>
+         <a href="{% url 'gerar_docx' projeto.id%}" class="btn btn-primary">Gerar docx</a>
 <!--            <a href="{% url 'listar_downloads' %}" class="btn btn-primary">Lista de Downloads</a>-->
             <button type="button" class="btn btn-danger" onclick="confirmarDelete()">Limpar Lista</button>
 
@@ -45,7 +45,7 @@
 
         <div class="list-group">
             <a href="#" class="list-group-item list-group-item-action active">
-                Produtos adicionados a lista {{nome}}
+                Produtos adicionados a lista {{projeto.nome_projeto}}
              </a>
             {% for produto in produtos %}
                   <!--<a href="#" class="list-group-item list-group-item-action">{{ produto.produto }} | <b>{{ produto.quantidade }} UND</b></a>-->
