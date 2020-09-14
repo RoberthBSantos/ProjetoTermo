@@ -149,6 +149,7 @@ def excluir_fornecedor(request,id):
 
 def nova_lista(request,id):
     form = FormularioLista(request.POST or None)
+    count = 1
 
 
     if form.is_valid():
@@ -160,12 +161,25 @@ def nova_lista(request,id):
         return redirect('lista/id/',id)
 
 
-    produtos = ListaMaterial.objects.filter(projeto = id).order_by('produto__nome')
+    infra = ListaMaterial.objects.filter(projeto = id).filter(produto__grupo__nome = 'INFRAESTRUTURA' ).order_by('produto__nome')
+    serv_infra = ListaMaterial.objects.filter(projeto = id).filter(produto__grupo__nome = 'SERVIÇOS DE INFRAESTRUTURA' ).order_by('produto__nome')
+    fibra = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='FIBRA ÓPTICA').order_by('produto__nome')
+    ferragens = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='FERRAGENS E ACESSÓRIOS').order_by('produto__nome')
+    cabeamento = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='CABEAMENTO METÁLICO')
+    racks = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='RACKS, GABINETES E ACESSÓRIOS')
+    rede_eletrica = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='REDE ELÉTRICA')
+    servicos_rede = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='SERVIÇOS DE REDE')
+    rede_de_dados_e_energia = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='REDE DE DADOS E ENERGIA')
+    seguranca = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='SEGURANÇA')
+
     projeto = Projeto.objects.get(id=id)
 
 
 
-    return render(request, 'formulario_lista.html', {'form': form,'produtos':produtos, 'projeto' : projeto})
+    return render(request, 'formulario_lista.html', {'form': form,'infra':infra,'serv_infra':serv_infra,
+                                                     'fibra':fibra,'ferragens':ferragens,'cabeamento':cabeamento,
+                  'racks':racks,'rede_eletrica':rede_eletrica,'servicos_rede':servicos_rede,
+                  'rede_de_dados_e_energia':rede_de_dados_e_energia,'seguranca':seguranca, 'projeto' : projeto})
 
 def excluir_prod_lista(request,id):
     if request.method is not 'POST':
@@ -472,9 +486,9 @@ def delete_doc(request,id):
 
     documento = get_object_or_404(DocFiles, id =  id)
     try:
-        os.remove('documents/documents/media/Anexos ' + documento.title +'.docx')
+        os.remove('documents/documents/media/' + documento.title +'.docx')
     except:
-        os.remove('documents/documents/media/Planilha ' + documento.title + '.xlsx')
+        os.remove('documents/documents/media/' + documento.title + '.xlsx')
     os.remove(str(documento.docupload))
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')
