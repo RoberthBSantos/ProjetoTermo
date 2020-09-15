@@ -16,23 +16,37 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from contatos.views import *
+from django.conf.urls.static import static
+from django.conf.urls import url
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', listar_contatos, name = "lista_contatos"),
+    path('lista_contatos', listar_contatos, name = "lista_contatos"),
+    path('',listar_projetos, name= 'lista_projetos'),
+    path('novo_projeto', novo_projeto, name= 'novo_projeto'),
     path('adicionar', novo_contato, name = "adicionar_contato"),
     path('atualizar/<int:id>/', atualizar_contato, name = "atualizar_contato"),
     path('exluir/<int:id>)/', excluir_produto, name = "excluir_produto"),
-    path('lista', nova_lista, name = 'adicionar_lista'),
+    path('lista/<int:id>', nova_lista, name = 'lista/id/'),
     path('exluir_prod/<int:id>)/', excluir_prod_lista, name = "excluir_produto_lista"),
-    path('gerar_documento', gerar_xlsx,name = 'gerar_documento'),
+    path('gerar_documento/<int:id>/', gerar_xlsx,name = 'gerar_documento'),
     path('novo_fornecedor', novo_fornecedor, name = 'novo_fornecedor'),
     path('listar_fornecedor', listar_fornecedor, name = 'listar_fornecedor'),
-    path('gerar_docx', gerar_docx, name = 'gerar_docx'),
+    path('gerar_docx/<int:id>/', gerar_docx, name = 'gerar_docx'),
     path('atualizar_fornecedor/<int:id>/', atualizar_fornecedor, name = 'atualizar_fornecedor'),
     path('excluir_fornecedor/<int:id>/', excluir_fornecedor, name = 'excluir_fornecedor'),
     path('excluir_prod_lista/<int:id>',excluir_prod_lista, name = 'excluir_prod_lista'),
     path('atualizar_prod_lista/<int:id>', atualizar_prod_lista, name = 'atualizar_prod_lista'),
     path('excluir_lista_produto/<int:id>',excluir_lista_produto, name = 'excluir_lista_produto'),
-    path('novo_projeto',novo_projeto, name = 'novo_projeto'),
+    url(r'^download/(?P<path>.*)$',serve,{'document_root':settings.MEDIA_ROOT}),
+    path('listar_downloads',listar_download, name = 'listar_downloads'),
+    path('formulario_docs/<int:id>',get_name_docx, name = 'formulario_docs'),
+    path('formulario_xlsx/<int:id>',get_name_xlsx,name = 'formulario_xlsx'),
+    path('delete_doc/<int:id>', delete_doc, name = 'delete_doc'),
+    path('limpar_lista',limpar_lista, name = 'limpar_lista'),
 ]
+
+if settings.DEBUG:
+    urlpatterns+=static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

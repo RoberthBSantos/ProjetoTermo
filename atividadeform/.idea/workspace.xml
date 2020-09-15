@@ -21,15 +21,9 @@
   <component name="ChangeListManager">
     <list default="true" id="b0f7edeb-a421-4e42-bdc8-84ca9237f9ad" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/anexos.docx" beforeDir="false" afterPath="$PROJECT_DIR$/anexos.docx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contatos/files/logo_nucleo-1-1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/contatos/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/contatos/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contatos/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/contatos/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/formularios/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/formularios/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/planilha_preços.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/planilha_preços.xlsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/contatos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/contatos.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/lista_fornecedor.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/lista_fornecedor.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/formulario_lista.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/formulario_lista.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,11 +37,6 @@
         <option value="HTML File" />
       </list>
     </option>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>excluir</find>
-    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -95,13 +84,17 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="184" y="0" key="SettingsEditor" timestamp="1598009728724">
+    <state x="184" y="0" key="SettingsEditor" timestamp="1599573533808">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state x="184" y="0" key="SettingsEditor/0.0.1366.738@0.0.1366.738" timestamp="1598009728724" />
+    <state x="184" y="0" key="SettingsEditor/0.0.1366.738@0.0.1366.738" timestamp="1599573533808" />
     <state x="275" y="101" key="Vcs.Push.Dialog.v2" timestamp="1598017229030">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="275" y="101" key="Vcs.Push.Dialog.v2/0.0.1366.738@0.0.1366.738" timestamp="1598017229030" />
+    <state x="0" y="0" width="585" height="738" key="find.popup" timestamp="1599229815520">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="0" y="0" width="585" height="738" key="find.popup/0.0.1366.738@0.0.1366.738" timestamp="1599229815520" />
   </component>
 </project>

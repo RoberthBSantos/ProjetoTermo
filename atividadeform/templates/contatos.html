@@ -19,7 +19,7 @@
                 </div>
                 <button type="submit" class="btn btn-outline-primary">Pesquisar</button>
                 <a href="{% url 'adicionar_contato' %}" class="btn btn-outline-secondary">Novo Produto</a>
-                <a href="{% url 'adicionar_lista' %}" class="btn btn-outline-info">Nova Lista</a>
+
 
 
         </div>
@@ -39,8 +39,9 @@
                     </svg>
                 </a>
             <hr>
+<!--            <button onclick="confirmarDelete()">Deletar</button>-->
 
-<!--        <button onclick="confirmarDelete()">Deletar</button></li><hr>-->
+        </li><hr>
 
 <!--                     <script>-->
 <!--                        function confirmarDelete()-->
@@ -58,7 +59,42 @@
 
         {% endfor %}
     </ul>
-        
+    <div class="pagination">
+
+            <nav aria-label="Page navigation example">
+                  <ul class="pagination">
+                      {% if produtos.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ contatos.previous_page_number }}">Previous</a></li>
+                    {% endif %}
+
+                      <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+                    <li class="page-item"><a class="page-link" href="?page=2">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+
+
+                      {% if produtos.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ contatos.next_page_number }}">Next</a></li>
+                    {% endif %}
+                  </ul>
+            </nav>
+
+<!--        <span class="step-links">-->
+
+<!--            {% if produtos.has_previous %}-->
+<!--                <a href="?page={{ produtos.previous_page_number }}"><i class="fas fa-arrow-left"></i></a>-->
+<!--            {% endif %}-->
+
+<!--            <span class="current">-->
+<!--               {{ produtos.number }} de {{ produtos.paginator.num_pages }}-->
+<!--            </span>-->
+
+<!--            {% if produtos.has_next %}-->
+<!--                <a href="?page={{ produtos.next_page_number }}"><i class="fas fa-arrow-right"></i></a>-->
+<!--            {% endif %}-->
+
+<!--        </span>-->
+    </div>
+
     <br>
 
 
