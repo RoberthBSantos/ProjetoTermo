@@ -22,7 +22,7 @@ def listar_contatos(request):
     else:
         produtos_list = Produtos.objects.order_by('nome')
 
-    paginator = Paginator(produtos_list,5)
+    paginator = Paginator(produtos_list,10)
 
     page = request.GET.get('page')
 
@@ -48,6 +48,16 @@ def novo_contato(request):
         return redirect('lista_contatos')
 
     return  render(request, 'formulario_contato.html', {'form' : form})
+
+def atualizar_projeto(request, id):
+    projeto = get_object_or_404(Projeto, pk=id)
+    form = FormularioProjeto(request.POST or None, instance=projeto)
+
+    if form.is_valid():
+        form.save()
+        return redirect('lista_projetos')
+
+    return render(request, 'formulario_projeto.html', {'form': form})
 
 def atualizar_contato(request, id):
     contato = get_object_or_404(Produtos, pk=id)
@@ -343,7 +353,7 @@ def gerar_xlsx(request,id):
 
 
     wb.save('documents/documents/media/Planilha ' +nome_doc+'.xlsx')
-    gerar_doc(nome_doc)
+    gerar_planilha(nome_doc)
     return redirect ('listar_downloads')
 
 def gerar_docx(request,id):
@@ -424,22 +434,24 @@ def group_check(grupo):
     return False
 
 def gerar_doc(nome):
-    try:
-        f = File(open(os.path.join(settings.MEDIA_ROOT,'documents/media/Anexos ' + nome +'.docx'),'rb'))
-        doc = DocFiles()
-        doc.docupload = f
 
-        doc.title ='Anexos' + nome
+    f = File(open(os.path.join(settings.MEDIA_ROOT,'documents/media/Anexos ' + nome +'.docx'),'rb'))
+    doc = DocFiles()
+    doc.docupload = f
 
-        doc.save(nome)
-    except:
-        f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
-        doc = DocFiles()
-        doc.docupload = f
+    doc.title ='Anexos ' + nome
 
-        doc.title ='Planilha ' + nome
+    doc.save(nome)
 
-        doc.save(nome)
+def gerar_planilha(nome):
+
+    f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
+    doc = DocFiles()
+    doc.docupload = f
+
+    doc.title ='Planilha ' + nome
+
+    doc.save(nome)
 
 
 

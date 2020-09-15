@@ -27,7 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.19.246',
                  '127.0.0.1',
-                 '10.101.40.55']
+                 '10.101.40.55',
+                 '192.168.19.5']
 
 
 # Application definition
