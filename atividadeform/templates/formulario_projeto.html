@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load bootstrap %}
 
-{%block title%} Cadastro Fornecedor {%endblock%}
+{%block title%} Cadastro Projeto {%endblock%}
 {% block main %}
-    <h1>Gerar Arquivos</h1>
+    <h1>Dados do Projeto</h1>
     <form method="POST">
         {% csrf_token %}
         {{ form|bootstrap }}

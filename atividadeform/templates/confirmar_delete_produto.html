@@ -4,7 +4,7 @@
 {% block main %}
 
 
-<h3> Tem certeza que deseja deletar o Produto {{ produto.produto.nome }} {{ produto.nome }} </h3>
+<h3> Tem certeza que deseja deletar {{ produto.produto.nome }} {{ produto.nome }} {{ projeto.nome_projeto }} </h3>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <input class="btn btn-outline-success" type="submit" value="Deletar">

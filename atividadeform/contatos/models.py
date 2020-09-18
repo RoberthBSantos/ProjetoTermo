@@ -18,7 +18,7 @@ class Grupos (models.Model):
 
 class Produtos(models.Model):
     nome = models.CharField(max_length= 300)
-    fabricante = models.CharField(max_length = 30)
+    fabricante = models.CharField(max_length = 30,blank=True,default="")
     modelo = models.CharField(max_length=50,blank=True,default="")
     unidade = models.CharField(max_length=15,blank=True,default='UND')
     grupo = models.ForeignKey(Grupos,null=True,blank=True, on_delete= models.PROTECT)
@@ -46,7 +46,7 @@ class Projeto (models.Model):
 class ListaMaterial (models.Model):
     quantidade = models.IntegerField(null=False, blank=False)
     produto = models.ForeignKey(Produtos, null=True, blank= True, on_delete=models.PROTECT)
-    projeto = models.ForeignKey(Projeto,null=True, on_delete=models.PROTECT)
+    projeto = models.ForeignKey(Projeto,null=True, on_delete=models.CASCADE)
 
     @property
     def custo_produto(self):
@@ -66,6 +66,19 @@ class ListaMaterial (models.Model):
                 + (((self.projeto.margem / 100) * float(self.produto.valor)) + float(self.produto.valor))
 
         return total
+
+    @property
+    def pontos(self):
+        if self.produto.grupo.nome == 'INFRAESTRUTURA' or self.produto.grupo.nome == 'SERVIÇOS DE INFRAESTRUTURA':
+            total = self.custo_venda / 0.70
+            return  round(total+0.5)
+        elif self.produto.grupo.nome == 'REDE DE DADOS E ENERGIA' or self.produto.grupo.nome == 'SEGURANÇA':
+            total = self.custo_venda / .90
+            return round(total+0.5)
+        else:
+            total = self.custo_venda / .80
+            return round(total+0.5)
+
 
     def __str__(self):
         return self.produto.nome
