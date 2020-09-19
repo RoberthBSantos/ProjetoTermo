@@ -260,18 +260,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoAzul
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
 
@@ -282,18 +271,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -443,18 +421,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
 
             linha += 1
 
@@ -605,18 +572,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoAzul
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+           
 
             linha += 1
 
@@ -626,18 +582,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -785,18 +730,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -943,18 +877,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1101,18 +1024,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1259,18 +1171,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1417,18 +1318,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1579,18 +1469,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoAzul
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             ########################## GRUPO 09 #############################
@@ -1599,18 +1478,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1758,18 +1626,7 @@ def gerar_xlsx(request,id):
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-            planilha['A' + str(linha)].border = borda
-            planilha['B' + str(linha)].border = borda
-            planilha['C' + str(linha)].border = borda
-            planilha['D' + str(linha)].border = borda
-            planilha['E' + str(linha)].border = borda
-            planilha['F' + str(linha)].border = borda
-            planilha['G' + str(linha)].border = borda
-            planilha['H' + str(linha)].border = borda
-            planilha['I' + str(linha)].border = borda
-            planilha['J' + str(linha)].border = borda
-            planilha['K' + str(linha)].border = borda
-            planilha['L' + str(linha)].border = borda
+
             linha += 1
 
             planilha['A' + str(linha)].fill = preenchimentoGrupo
