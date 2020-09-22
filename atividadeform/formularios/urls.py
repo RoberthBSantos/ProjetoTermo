@@ -19,6 +19,8 @@ from contatos.views import *
 from django.conf.urls.static import static
 from django.conf.urls import url
 from django.views.static import serve
+from usuarios.views import RegistrarUsuarioView
+from django.contrib.auth import views as v
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -47,6 +49,10 @@ urlpatterns = [
     path('delete_doc/<int:id>', delete_doc, name = 'delete_doc'),
     path('limpar_lista',limpar_lista, name = 'limpar_lista'),
     path('deletar_projeto/<int:id>',deletar_projeto, name = 'deletar_projeto'),
+    path('registrar/', RegistrarUsuarioView, name="registrar"),
+    path('login/',v.LoginView.as_view(template_name='login.html'), name = 'login'),
+    path('logout/', v.LogoutView.as_view(template_name='login.html'), name='logout')
+
 ]
 
 if settings.DEBUG:

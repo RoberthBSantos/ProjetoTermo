@@ -1,0 +1,11 @@
+{% extends "base_usuario.html" %}
+{% load bootstrap %}
+{% block main %}
+ <form method="POST">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <button onclick='history.go(-1)' type="button" class="btn btn-outline-danger">Cancelar</button>
+
+    </form>
+{% endblock %}

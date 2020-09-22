@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+
+    <!--<nav>-->
+			<!--<a href="{%url 'lista_contatos' %}">NUCLEO TECNOLOGIA</a>-->
+			<!--<ul>-->
+				<!--<li><a href="#sobre">SOBRE</a></li>-->
+				<!--<li><a href="#servicos">SERVIÇOS</a></li>-->
+				<!--<li><a href="#portifolio">PORTIFÓLIOS</a></li>-->
+				<!--<li><a href="#contato">CONTATO</a></li>-->
+			<!--</ul>-->
+		<!--</nav>-->
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand"  href="{% url 'lista_projetos' %}">Núcleo Tecnologia</a>
+
+
+</nav>
+
+    <div class="container">
+        {% block main %}
+        {% endblock%}
+    </div>
+
+<!-- Footer -->
+<footer class="page-footer font-small unique-color-dark pt-4">
+
+  <!-- Footer Elements -->
+  <div class="container">
+
+    <!-- Call to action -->
+    <ul class="list-unstyled list-inline text-center py-2">
+      <li class="list-inline-item">
+
+      </li>
+      <li class="list-inline-item">
+        <img src="http://nucleoinfo.com/wp-content/uploads/2018/08/logo_nucleo-1-1.png" class="img-fluid"
+            alt="">
+      </li>
+    </ul>
+    <!-- Call to action -->
+
+  </div>
+  <!-- Footer Elements -->
+
+  <!-- Copyright -->
+  <div class="footer-copyright text-center py-3">© 2020 Copyright:
+    <a href="http://nucleoinfo.com/"> Nucleoinfo.com</a>
+  </div>
+  <!-- Copyright -->
+
+</footer>
+<!-- Footer -->
+</body>
+</html>

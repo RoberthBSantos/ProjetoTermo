@@ -11,8 +11,9 @@ from django.http import HttpResponse, Http404
 import os
 from django.conf import settings
 from django.core.files import File
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def listar_contatos(request):
     busca = request.GET.get('pesquisa',None)
 
@@ -30,7 +31,7 @@ def listar_contatos(request):
 
     return render(request, 'contatos.html', {'contatos' : produtos})
 
-
+@login_required
 def novo_projeto(request):
     form = FormularioProjeto(request.POST or None)
     if form.is_valid():
@@ -39,7 +40,7 @@ def novo_projeto(request):
 
     return render(request, 'formulario_projeto.html', {'form' : form})
 
-
+@login_required
 def novo_contato(request):
     form = FormularioContato(request.POST or None)
 
@@ -49,6 +50,7 @@ def novo_contato(request):
 
     return  render(request, 'formulario_contato.html', {'form' : form})
 
+@login_required
 def atualizar_projeto(request, id):
     projeto = get_object_or_404(Projeto, pk=id)
     form = FormularioProjeto(request.POST or None, instance=projeto)
@@ -59,6 +61,7 @@ def atualizar_projeto(request, id):
 
     return render(request, 'formulario_projeto.html', {'form': form})
 
+@login_required
 def atualizar_contato(request, id):
     contato = get_object_or_404(Produtos, pk=id)
     form = FormularioContato(request.POST or None, instance = contato)
@@ -69,7 +72,7 @@ def atualizar_contato(request, id):
 
     return render(request,'formulario_contato.html', {'form' : form})
 
-
+@login_required
 def atualizar_fornecedor(request, id):
     fornecedor = get_object_or_404(Fornecedor, pk=id)
     form = FormularioFornecedor(request.POST or None, instance=fornecedor)
@@ -92,7 +95,7 @@ def atualizar_prod_lista(request, id):
 
     return render(request, 'formulario_lista.html', {'form': form, 'projeto':projeto},)
 
-
+@login_required
 def excluir_produto(request,id):
     produto = get_object_or_404(Produtos, id =  id)
     form = FormularioContato(request.POST or None, request.FILES or None, instance = produto)
@@ -107,6 +110,7 @@ def excluir_produto(request,id):
 
     return render(request, 'confirmar_delete_produto.html', {'produto': produto})
 
+@login_required
 def excluir_lista_produto(request,id):
     produto = get_object_or_404(ListaMaterial, id =  id)
     form = FormularioContato(request.POST or None, request.FILES or None, instance = produto)
@@ -122,6 +126,7 @@ def excluir_lista_produto(request,id):
 
     return render(request, 'confirmar_delete_produto.html', {'produto': produto})
 
+@login_required
 def excluir_prod_lista(request,id):
     produto = get_object_or_404(ListaMaterial, id = id)
     form = FormularioLista(request.POST or None)
@@ -136,6 +141,7 @@ def excluir_prod_lista(request,id):
         return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
     return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
 
+@login_required
 def novo_fornecedor(request):
     form = FormularioFornecedor(request.POST or None)
 
@@ -144,19 +150,20 @@ def novo_fornecedor(request):
         return redirect('listar_fornecedor')
     return render(request,'formulario_fornecedor.html',{'form': form})
 
-
+@login_required
 def listar_fornecedor(request):
     fornecedores = Fornecedor.objects.order_by('razao_social')
 
     return render(request, 'lista_fornecedor.html', {'fornecedores' : fornecedores})
 
+@login_required
 def excluir_fornecedor(request,id):
     if request.method is not 'POST':
         forn_delete=Fornecedor.objects.filter(id=id)
         forn_delete.delete()
         return redirect('lista_fornecedor')
 
-
+@login_required
 def nova_lista(request,id):
     form = FormularioLista(request.POST or None)
     count = 1
@@ -191,6 +198,7 @@ def nova_lista(request,id):
                   'racks':racks,'rede_eletrica':rede_eletrica,'servicos_rede':servicos_rede,
                   'rede_de_dados_e_energia':rede_de_dados_e_energia,'seguranca':seguranca, 'projeto' : projeto})
 
+@login_required
 def excluir_prod_lista(request,id):
     if request.method is not 'POST':
         id_lista = ListaMaterial.objects.filter(id=id).projeto
@@ -199,7 +207,7 @@ def excluir_prod_lista(request,id):
         return redirect('lista/id/',id_lista)
 
 
-
+@login_required
 def gerar_xlsx(request,id):
     nome_doc = Projeto.objects.get(id=id).nome_projeto
     produtos = Produtos.objects.order_by('nome')
@@ -1925,6 +1933,7 @@ def gerar_xlsx(request,id):
     gerar_planilha(nome_doc)
     return redirect ('listar_downloads')
 
+@login_required
 def gerar_docx(request,id):
     nome_doc = Projeto.objects.get(id=id).nome_projeto
     produtos = Produtos.objects.order_by('nome')
@@ -2063,6 +2072,7 @@ def get_name_xlsx(request):
 
     return render(request,'formulario_docs.html', {'form' : form})
 
+@login_required
 def delete_doc(request,id):
 
     documento = get_object_or_404(DocFiles, id =  id)
@@ -2082,6 +2092,7 @@ def limpar_lista(request):
 
     return redirect('adicionar_lista')
 
+@login_required
 def listar_projetos(request):
     busca = request.GET.get('pesquisa', None)
 
@@ -2110,3 +2121,7 @@ def deletar_projeto(request,id):
         return redirect('lista_projetos')
 
     return render(request, 'confirmar_delete_produto.html', {'projeto': projeto})
+
+@login_required
+def get_perfil_logado(request):
+    return request.user.perfil
