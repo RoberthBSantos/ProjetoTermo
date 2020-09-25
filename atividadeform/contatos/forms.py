@@ -4,10 +4,17 @@ from .models import Produtos, ListaMaterial, Fornecedor, Projeto
 
 
 class FormularioContato(ModelForm):
-    valor = forms.DecimalField(max_digits=8, decimal_places=2, localize=True)
+    valor_de_compra = forms.DecimalField(max_digits=8, decimal_places=2, localize=True)
     class Meta:
         model = Produtos
-        fields = ['nome','fabricante','fornecedor','modelo','unidade','tempo_de_instalacao','grupo','descricao','valor','data']
+        fields = ['nome','fabricante','fornecedor','modelo','unidade','tempo_de_instalacao','grupo','descricao','valor_de_compra','data']
+        labels = {
+
+            'tempo_de_instalacao' : 'Tempo de instalação ∆T INF.',
+            'descricao' : 'Descricao (Que vai para o documento do termo.)',
+            'data': 'Data da cotação'
+        }
+
         widgets = {
             'data': DateInput(attrs={'type': 'date',})
         }

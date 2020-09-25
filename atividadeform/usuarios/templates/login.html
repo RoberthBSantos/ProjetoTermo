@@ -22,9 +22,13 @@ type="submit" value="Login">Login</button>
 
 data-dismiss="alert" aria-hidden="true">×</button>
 
-Por favor, verifique o Email e/ou Senha informados
-</div>
+Por favor, verifique o Usuario e/ou Senha informados
+</div >
 {% endif %}
-<a href="{% url 'registrar' %}">registre-se</a>
+    <div style='text-align:center'>
+
+        <a href="{% url 'registrar' %}">registre-se</a>
+    </div>
+
 </form>
 {% endblock %}

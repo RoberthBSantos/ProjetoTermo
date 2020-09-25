@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Produtos, ListaMaterial, Fornecedor, Grupos, DocFiles,Projeto
-from .forms import FormularioContato, FormularioLista, FormularioFornecedor, NameForm,FormularioProjeto
+from .models import Produtos, ListaMaterial, Fornecedor, Grupos, DocFiles, Projeto
+from .forms import FormularioContato, FormularioLista, FormularioFornecedor, NameForm, FormularioProjeto
 import openpyxl
 from openpyxl.styles import Font, colors, Alignment, Border, Side, PatternFill
 import docx
@@ -13,23 +13,26 @@ from django.conf import settings
 from django.core.files import File
 from django.contrib.auth.decorators import login_required
 
+
 @login_required
 def listar_contatos(request):
-    busca = request.GET.get('pesquisa',None)
+    busca = request.GET.get('pesquisa', None)
 
     if busca:
         # contatos = Contatos.objects.all()
-        produtos_list = Produtos.objects.filter(nome__icontains = busca) or Produtos.objects.filter(fabricante__icontains = busca)
+        produtos_list = Produtos.objects.filter(nome__icontains=busca) or Produtos.objects.filter(
+            fabricante__icontains=busca) or Produtos.objects.filter(modelo__icontains=busca)
     else:
         produtos_list = Produtos.objects.order_by('nome')
 
-    paginator = Paginator(produtos_list,10)
+    paginator = Paginator(produtos_list, 10)
 
     page = request.GET.get('page')
 
     produtos = paginator.get_page(page)
 
-    return render(request, 'contatos.html', {'contatos' : produtos})
+    return render(request, 'contatos.html', {'contatos': produtos_list})
+
 
 @login_required
 def novo_projeto(request):
@@ -38,7 +41,8 @@ def novo_projeto(request):
         form.save()
         return redirect('lista_projetos')
 
-    return render(request, 'formulario_projeto.html', {'form' : form})
+    return render(request, 'formulario_projeto.html', {'form': form})
+
 
 @login_required
 def novo_contato(request):
@@ -48,7 +52,8 @@ def novo_contato(request):
         form.save()
         return redirect('lista_contatos')
 
-    return  render(request, 'formulario_contato.html', {'form' : form})
+    return render(request, 'formulario_contato.html', {'form': form})
+
 
 @login_required
 def atualizar_projeto(request, id):
@@ -61,16 +66,18 @@ def atualizar_projeto(request, id):
 
     return render(request, 'formulario_projeto.html', {'form': form})
 
+
 @login_required
 def atualizar_contato(request, id):
     contato = get_object_or_404(Produtos, pk=id)
-    form = FormularioContato(request.POST or None, instance = contato)
+    form = FormularioContato(request.POST or None, instance=contato)
 
     if form.is_valid():
         form.save()
         return redirect('lista_contatos')
 
-    return render(request,'formulario_contato.html', {'form' : form})
+    return render(request, 'formulario_contato.html', {'form': form})
+
 
 @login_required
 def atualizar_fornecedor(request, id):
@@ -83,22 +90,22 @@ def atualizar_fornecedor(request, id):
 
     return render(request, 'formulario_fornecedor.html', {'form': form})
 
-def atualizar_prod_lista(request, id):
 
+def atualizar_prod_lista(request, id):
     produto = get_object_or_404(ListaMaterial, pk=id)
     form = FormularioLista(request.POST or None, instance=produto)
     projeto = produto.projeto
     if form.is_valid():
         form.save()
-        return redirect('lista/id/',produto.projeto.id)
+        return redirect('lista/id/', produto.projeto.id)
 
+    return render(request, 'formulario_lista.html', {'form': form, 'projeto': projeto}, )
 
-    return render(request, 'formulario_lista.html', {'form': form, 'projeto':projeto},)
 
 @login_required
-def excluir_produto(request,id):
-    produto = get_object_or_404(Produtos, id =  id)
-    form = FormularioContato(request.POST or None, request.FILES or None, instance = produto)
+def excluir_produto(request, id):
+    produto = get_object_or_404(Produtos, id=id)
+    form = FormularioContato(request.POST or None, request.FILES or None, instance=produto)
     if request.method == 'POST':
         produto.delete()
         return redirect('lista_contatos')
@@ -110,14 +117,15 @@ def excluir_produto(request,id):
 
     return render(request, 'confirmar_delete_produto.html', {'produto': produto})
 
+
 @login_required
-def excluir_lista_produto(request,id):
-    produto = get_object_or_404(ListaMaterial, id =  id)
-    form = FormularioContato(request.POST or None, request.FILES or None, instance = produto)
+def excluir_lista_produto(request, id):
+    produto = get_object_or_404(ListaMaterial, id=id)
+    form = FormularioContato(request.POST or None, request.FILES or None, instance=produto)
     id_lista = produto.projeto.id
     if request.method == 'POST':
         produto.delete()
-        return redirect('lista/id/',id_lista)
+        return redirect('lista/id/', id_lista)
 
     # if request.method is not 'POST':
     #     post_delete=Contatos.objects.filter(id=id)
@@ -126,20 +134,22 @@ def excluir_lista_produto(request,id):
 
     return render(request, 'confirmar_delete_produto.html', {'produto': produto})
 
+
 @login_required
-def excluir_prod_lista(request,id):
-    produto = get_object_or_404(ListaMaterial, id = id)
+def excluir_prod_lista(request, id):
+    produto = get_object_or_404(ListaMaterial, id=id)
     form = FormularioLista(request.POST or None)
     produtos = ListaMaterial.objects.all()
     contatos = Produtos.objects.all()
 
     if request.method is not 'POST':
-        post_delete=ListaMaterial.objects.filter(id=id)
+        post_delete = ListaMaterial.objects.filter(id=id)
         post_delete.delete()
         produtos = ListaMaterial.objects.all()
         contatos = Produtos.objects.all()
         return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
     return render(request, 'formulario_lista.html', {'form': form, 'produtos': produtos, 'contatos': contatos})
+
 
 @login_required
 def novo_fornecedor(request):
@@ -148,26 +158,28 @@ def novo_fornecedor(request):
     if form.is_valid():
         form.save()
         return redirect('listar_fornecedor')
-    return render(request,'formulario_fornecedor.html',{'form': form})
+    return render(request, 'formulario_fornecedor.html', {'form': form})
+
 
 @login_required
 def listar_fornecedor(request):
     fornecedores = Fornecedor.objects.order_by('razao_social')
 
-    return render(request, 'lista_fornecedor.html', {'fornecedores' : fornecedores})
+    return render(request, 'lista_fornecedor.html', {'fornecedores': fornecedores})
+
 
 @login_required
-def excluir_fornecedor(request,id):
+def excluir_fornecedor(request, id):
     if request.method is not 'POST':
-        forn_delete=Fornecedor.objects.filter(id=id)
+        forn_delete = Fornecedor.objects.filter(id=id)
         forn_delete.delete()
         return redirect('lista_fornecedor')
 
+
 @login_required
-def nova_lista(request,id):
+def nova_lista(request, id):
     form = FormularioLista(request.POST or None)
     count = 1
-
 
     if form.is_valid():
         form.save()
@@ -175,106 +187,106 @@ def nova_lista(request,id):
 
         produtos = ListaMaterial.objects.order_by('produto__nome')
 
-        return redirect('lista/id/',id)
+        return redirect('lista/id/', id)
 
-
-    infra = ListaMaterial.objects.filter(projeto = id).filter(produto__grupo__nome = 'INFRAESTRUTURA' ).order_by('produto__nome')
-    serv_infra = ListaMaterial.objects.filter(projeto = id).filter(produto__grupo__nome = 'SERVIÇOS DE INFRAESTRUTURA' ).order_by('produto__nome')
-    fibra = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='FIBRA ÓPTICA').order_by('produto__nome')
-    ferragens = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='FERRAGENS E ACESSÓRIOS').order_by('produto__nome')
+    infra = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='INFRAESTRUTURA').order_by(
+        'produto__nome')
+    serv_infra = ListaMaterial.objects.filter(projeto=id).filter(
+        produto__grupo__nome='SERVIÇOS DE INFRAESTRUTURA').order_by('produto__nome')
+    fibra = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='FIBRA ÓPTICA').order_by(
+        'produto__nome')
+    ferragens = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='FERRAGENS E ACESSÓRIOS').order_by(
+        'produto__nome')
     cabeamento = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='CABEAMENTO METÁLICO')
     racks = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='RACKS, GABINETES E ACESSÓRIOS')
     rede_eletrica = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='REDE ELÉTRICA')
     servicos_rede = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='SERVIÇOS DE REDE')
-    rede_de_dados_e_energia = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='REDE DE DADOS E ENERGIA')
+    rede_de_dados_e_energia = ListaMaterial.objects.filter(projeto=id).filter(
+        produto__grupo__nome='REDE DE DADOS E ENERGIA')
     seguranca = ListaMaterial.objects.filter(projeto=id).filter(produto__grupo__nome='SEGURANÇA')
 
     projeto = Projeto.objects.get(id=id)
 
+    return render(request, 'formulario_lista.html', {'form': form, 'infra': infra, 'serv_infra': serv_infra,
+                                                     'fibra': fibra, 'ferragens': ferragens, 'cabeamento': cabeamento,
+                                                     'racks': racks, 'rede_eletrica': rede_eletrica,
+                                                     'servicos_rede': servicos_rede,
+                                                     'rede_de_dados_e_energia': rede_de_dados_e_energia,
+                                                     'seguranca': seguranca, 'projeto': projeto})
 
-
-    return render(request, 'formulario_lista.html', {'form': form,'infra':infra,'serv_infra':serv_infra,
-                                                     'fibra':fibra,'ferragens':ferragens,'cabeamento':cabeamento,
-                  'racks':racks,'rede_eletrica':rede_eletrica,'servicos_rede':servicos_rede,
-                  'rede_de_dados_e_energia':rede_de_dados_e_energia,'seguranca':seguranca, 'projeto' : projeto})
 
 @login_required
-def excluir_prod_lista(request,id):
+def excluir_prod_lista(request, id):
     if request.method is not 'POST':
         id_lista = ListaMaterial.objects.filter(id=id).projeto
         ListaMaterial.objects.filter(id=id).delete()
 
-        return redirect('lista/id/',id_lista)
+        return redirect('lista/id/', id_lista)
 
 
 @login_required
-def gerar_xlsx(request,id):
+def gerar_xlsx(request, id):
     nome_doc = Projeto.objects.get(id=id).nome_projeto
     produtos = Produtos.objects.order_by('nome')
-    lista = ListaMaterial.objects.filter(projeto = id, produto__grupo__nome = 'INFRAESTRUTURA')
-
+    lista = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='INFRAESTRUTURA')
 
     ##################  LISTAS DE MATERIAIS SEPARADAS POR GRUPO #########################
 
     lista_infra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='INFRAESTRUTURA')
     lista_serv_infra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SERVIÇOS DE INFRAESTRUTURA')
-    lista_fibra = ListaMaterial.objects.filter(projeto= id, produto__grupo__nome = 'FIBRA ÓPTICA')
-    lista_ferragens = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome = 'FERRAGENS E ACESSÓRIOS')
-    lista_cabeamento = ListaMaterial.objects.filter(projeto = id, produto__grupo__nome = 'CABEAMENTO METÁLICO')
-    lista_rack = ListaMaterial.objects.filter(projeto = id, produto__grupo__nome = 'RACKS, GABINETES E ACESSÓRIOS')
+    lista_fibra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='FIBRA ÓPTICA')
+    lista_ferragens = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='FERRAGENS E ACESSÓRIOS')
+    lista_cabeamento = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='CABEAMENTO METÁLICO')
+    lista_rack = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='RACKS, GABINETES E ACESSÓRIOS')
     lista_rede_eletrica = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='REDE ELÉTRICA')
-    lista_servicos_rede = ListaMaterial.objects.filter(projeto = id, produto__grupo__nome = 'SERVIÇOS DE REDE')
-    lista_rede_energia = ListaMaterial.objects.filter(projeto = id, produto__grupo__nome = 'REDE DE DADOS E ENERGIA')
-    lista_seguranca = ListaMaterial.objects.filter(projeto = id, produto__grupo__nome = 'SEGURANÇA')
-
+    lista_servicos_rede = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SERVIÇOS DE REDE')
+    lista_rede_energia = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='REDE DE DADOS E ENERGIA')
+    lista_seguranca = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SEGURANÇA')
 
     wb = openpyxl.Workbook()
     cont = 2
     planilha = wb.active
     planilha.title = 'PREÇOS'
 
-    #FONTES PARA FORMATAR AS CÉLULAS DO ARQUIVO
-    ft_cabecalho = Font(name='Calibri', size=12, bold=True, color= 'FFFFFF')
-    ft_item = Font(name='Calibri',size=11)
-    ft_item_negrito = Font(name='Arial', size=10,bold=True)
+    # FONTES PARA FORMATAR AS CÉLULAS DO ARQUIVO
+    ft_cabecalho = Font(name='Calibri', size=12, bold=True, color='FFFFFF')
+    ft_item = Font(name='Calibri', size=11)
+    ft_item_negrito = Font(name='Arial', size=10, bold=True)
     ft_item_italico = Font(name='Arial', size=10, italic=True, color='505050')
 
-    #ALINHAMENTOS
-    alinhamento = Alignment(horizontal='center',vertical='center')
+    # ALINHAMENTOS
+    alinhamento = Alignment(horizontal='center', vertical='center')
     alinhamentoEsquerda = Alignment(horizontal='left', vertical='center')
-    alinhamentoDireita = Alignment(horizontal='right',vertical = 'center')
+    alinhamentoDireita = Alignment(horizontal='right', vertical='center')
 
-    #BORDAS
+    # BORDAS
     fina = Side(border_style='thin', color='000000')
     bordaInferior = Border(bottom=fina)
-    borda = Border(right=fina,bottom=fina)
+    borda = Border(right=fina, bottom=fina)
 
-    #PREENCHIMENTO DE CORES DAS CELULAS
-    preenchimentoAzul = PatternFill('solid',fgColor='6495ED')
+    # PREENCHIMENTO DE CORES DAS CELULAS
+    preenchimentoAzul = PatternFill('solid', fgColor='6495ED')
     preenchimentoVerde = PatternFill('solid', fgColor='00FF7F')
     preenchimentoCinza = PatternFill('solid', fgColor='DDDDDD')
-    preenchimentoGrupo = PatternFill('solid', fgColor ='A9A9A9')
+    preenchimentoGrupo = PatternFill('solid', fgColor='A9A9A9')
     preenchimentoAzulClaro = PatternFill('solid', fgColor='dbe5f1')
 
-
-
-    #COMEÇANDO A ESCREVER O ARQUIVO XLSX
+    # COMEÇANDO A ESCREVER O ARQUIVO XLSX
     linha = 1
     i = 1
     while i <= 3:
         if i == 1:
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
-            planilha['A'+str(linha)] = 'UPI (UNIDADE DE PLANTA DE INFRAESTRUTURA)'
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+            planilha['A' + str(linha)] = 'UPI (UNIDADE DE PLANTA DE INFRAESTRUTURA)'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoAzul
             planilha['A' + str(linha)].font = ft_cabecalho
 
             linha += 1
 
+            ########################## GRUPO 01 #############################
 
-########################## GRUPO 01 #############################
-
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 01-INFRAESTRUTURA'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -294,6 +306,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -307,6 +320,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -320,6 +334,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -331,12 +360,13 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
 
-
+            indice = linha
 
             for item in lista_infra:
 
@@ -345,17 +375,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -368,6 +401,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -381,18 +415,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -407,6 +443,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -420,16 +458,25 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha -1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
+
+
 
             ########################## GRUPO 02 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 02-SERVIÇOS DE INFRAESTRUTURA'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
-
 
             linha += 1
 
@@ -445,6 +492,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -458,6 +506,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -471,6 +520,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -482,10 +546,12 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
 
             for item in lista_serv_infra:
                 planilha['A' + str(linha)] = item.produto.fabricante
@@ -493,17 +559,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -516,7 +585,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
-
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -530,18 +599,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -556,6 +627,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -569,23 +642,31 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
 
         elif i == 2:
 
             ########################## UPR #############################
-            planilha.merge_cells('A'+str(linha)+':L'+str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'UPR (UNIDADE DE PLANTA DE REDE)'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoAzul
             planilha['A' + str(linha)].font = ft_cabecalho
-           
 
             linha += 1
 
             ########################## GRUPO 03 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 01-FIBRA ÓPTICA'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -605,6 +686,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -618,6 +700,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -631,7 +714,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
 
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -643,10 +740,12 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
 
             for item in lista_fibra:
 
@@ -655,17 +754,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -678,6 +780,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -691,18 +794,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -717,6 +822,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -730,10 +837,20 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
+
             ########################## GRUPO 04 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 04-FERRAGENS E ACESSÓRIOS'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -753,6 +870,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -766,6 +884,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -779,6 +898,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -790,10 +924,12 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
 
             for item in lista_ferragens:
 
@@ -802,17 +938,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -825,6 +964,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -838,18 +978,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -864,6 +1006,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -877,10 +1021,20 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
+
             ########################## GRUPO 05 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 05-CABEAMENTO METÁLICO'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -900,6 +1054,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -913,6 +1068,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -926,6 +1082,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -937,10 +1108,12 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
 
             for item in lista_cabeamento:
 
@@ -949,17 +1122,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -972,6 +1148,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -985,18 +1162,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -1011,6 +1190,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -1024,10 +1205,20 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
+
             ########################## GRUPO 06 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 06-RACK, GABINETES E ACESSÓRIOS'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1047,6 +1238,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -1060,6 +1252,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -1073,6 +1266,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -1084,10 +1292,12 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
 
             for item in lista_rack:
 
@@ -1096,17 +1306,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -1119,6 +1332,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -1132,18 +1346,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -1158,6 +1374,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -1171,10 +1389,20 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
+
             ########################## GRUPO 07 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 07-REDE ELÉTRICA'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1194,6 +1422,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -1207,6 +1436,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -1220,6 +1450,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -1231,10 +1476,13 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
+
 
             for item in lista_rede_eletrica:
 
@@ -1243,17 +1491,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -1266,6 +1517,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -1279,18 +1531,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -1305,6 +1559,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -1318,10 +1574,19 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
+
             ########################## GRUPO 08 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 08-SERVIÇOS DE REDE'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1341,6 +1606,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -1354,6 +1620,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -1367,6 +1634,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -1378,10 +1660,13 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
+
 
             for item in lista_servicos_rede:
 
@@ -1390,17 +1675,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -1413,6 +1701,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -1426,18 +1715,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -1452,6 +1743,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -1465,14 +1758,23 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
 
 
         elif i == 3:
 
             ########################## UPE #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'UPE (UNIDADE DE PLANTA DE EQUIPAMENTO)'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoAzul
@@ -1480,8 +1782,10 @@ def gerar_xlsx(request,id):
 
             linha += 1
 
+
+
             ########################## GRUPO 09 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 09-REDE DE DADOS E ENERGIA'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1501,6 +1805,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -1514,6 +1819,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -1527,6 +1833,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -1538,10 +1859,12 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
 
             for item in lista_rede_energia:
 
@@ -1550,17 +1873,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -1573,6 +1899,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -1586,18 +1913,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -1612,6 +1941,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -1625,11 +1956,19 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
 
             ########################## GRUPO 10 #############################
-            planilha.merge_cells('A' + str(linha) + ':L' + str(linha))
+            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
             planilha['A' + str(linha)] = 'GRUPO 10-SEGURANÇA'
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
@@ -1649,6 +1988,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].fill = preenchimentoGrupo
             planilha['K' + str(linha)].fill = preenchimentoGrupo
             planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
 
             planilha['A' + str(linha)].font = ft_cabecalho
             planilha['B' + str(linha)].font = ft_cabecalho
@@ -1662,6 +2002,7 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].font = ft_cabecalho
             planilha['K' + str(linha)].font = ft_cabecalho
             planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
 
             planilha['A' + str(linha)].border = borda
             planilha['B' + str(linha)].border = borda
@@ -1675,6 +2016,21 @@ def gerar_xlsx(request,id):
             planilha['J' + str(linha)].border = borda
             planilha['K' + str(linha)].border = borda
             planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
 
             planilha['A' + str(linha)] = 'FABRICANTE'
             planilha['B' + str(linha)] = 'MODELO'
@@ -1686,10 +2042,12 @@ def gerar_xlsx(request,id):
             planilha['H' + str(linha)] = '∆T INF.'
             planilha['I' + str(linha)] = '∆T SUP.'
             planilha['J' + str(linha)] = 'SERVIÇO'
-            planilha['K' + str(linha)] = 'PREÇO'
-            planilha['L' + str(linha)] = 'SUBTOTAL'
+            planilha['K' + str(linha)] = 'QTD'
+            planilha['L' + str(linha)] = 'PREÇO'
+            planilha['M' + str(linha)] = 'SUBTOTAL'
 
             linha += 1
+            indice = linha
 
             for item in lista_seguranca:
 
@@ -1698,17 +2056,20 @@ def gerar_xlsx(request,id):
                 planilha['C' + str(linha)] = item.produto.nome
                 planilha['D' + str(linha)] = item.produto.unidade
                 planilha['E' + str(linha)] = item.pontos
-                planilha['F' + str(linha)] = item.produto.valor
-                planilha['F' + str(linha)].number_format = 'R$    ##,##0.00'
-                planilha['G' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
                 planilha['G' + str(linha)] = item.custo_produto
                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
                 planilha['I' + str(linha)] = ''
                 planilha['J' + str(linha)] = item.custo_servico
-                planilha['J' + str(linha)].number_format = 'R$   ##,##0.00'
-                planilha['K' + str(linha)] = item.custo_venda
-                planilha['K' + str(linha)].number_format = 'R$   ##,##0.00'
+                planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.quantidade
+                planilha['L' + str(linha)] = item.custo_venda
+                planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
 
                 planilha['A' + str(linha)].font = ft_item
                 planilha['B' + str(linha)].font = ft_item
@@ -1721,6 +2082,7 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].font = ft_item
                 planilha['K' + str(linha)].font = ft_item
                 planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -1734,18 +2096,20 @@ def gerar_xlsx(request,id):
                 planilha['J' + str(linha)].border = borda
                 planilha['K' + str(linha)].border = borda
                 planilha['L' + str(linha)].border = borda
+                planilha['M' + str(linha)].border = borda
 
-                planilha['A' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['B' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['A' + str(linha)].alignment = alinhamento
+                planilha['B' + str(linha)].alignment = alinhamento
                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['D' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['E' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['F' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['G' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['H' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['I' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['J' + str(linha)].alignment = alinhamentoEsquerda
-                planilha['K' + str(linha)].alignment = alinhamentoEsquerda
+                planilha['D' + str(linha)].alignment = alinhamento
+                planilha['E' + str(linha)].alignment = alinhamento
+                planilha['F' + str(linha)].alignment = alinhamento
+                planilha['G' + str(linha)].alignment = alinhamento
+                planilha['H' + str(linha)].alignment = alinhamento
+                planilha['I' + str(linha)].alignment = alinhamento
+                planilha['K' + str(linha)].alignment = alinhamento
+                planilha['L' + str(linha)].alignment = alinhamento
+                planilha['M' + str(linha)].alignment = alinhamento
 
                 if linha % 2 == 0:
                     planilha['A' + str(linha)].fill = preenchimentoCinza
@@ -1760,6 +2124,8 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoCinza
                     planilha['K' + str(linha)].fill = preenchimentoCinza
                     planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+
                 else:
                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
@@ -1773,9 +2139,18 @@ def gerar_xlsx(request,id):
                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
-        i +=1
+            planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+            planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['M' + str(linha)].font = ft_item_negrito
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].fill = preenchimentoVerde
+
+            linha += 1
+
+        i += 1
 
     #
     # planilha['A1'].font = ft_cabecalho
@@ -1823,13 +2198,15 @@ def gerar_xlsx(request,id):
     planilha.column_dimensions["B"].width = 20.0
     planilha.column_dimensions["C"].width = 101.0
     planilha.column_dimensions["D"].width = 10.0
-    planilha.column_dimensions["E"].width = 16.0
-    planilha.column_dimensions["F"].width = 20.0
-    planilha.column_dimensions["G"].width = 20.0
+    planilha.column_dimensions["E"].width = 12.0
+    planilha.column_dimensions["F"].width = 15.0
+    planilha.column_dimensions["G"].width = 15.0
     planilha.column_dimensions["H"].width = 8.0
-    planilha.column_dimensions["K"].width = 15.0
+    planilha.column_dimensions["K"].width = 8.0
     planilha.column_dimensions["J"].width = 12.0
     planilha.column_dimensions["L"].width = 15.0
+    planilha.column_dimensions["M"].width = 15.0
+
     #
     # for item in lista:
     #
@@ -1859,29 +2236,29 @@ def gerar_xlsx(request,id):
     #
     #
     #
-                # planilha['A' + str(cont)].font = ft_item
-                # planilha['B' + str(cont)].font = ft_item
-                # planilha['C' + str(cont)].font = ft_item
-                # planilha['D' + str(cont)].font = ft_item
-                # planilha['E' + str(cont)].font = ft_item
-                # planilha['F' + str(cont)].font = ft_item
-                # planilha['G' + str(cont)].font = ft_item
-                # planilha['I' + str(cont)].font = ft_item
-                # planilha['J' + str(cont)].font = ft_item
-                # planilha['K' + str(cont)].font = ft_item
-                # planilha['L' + str(cont)].font = ft_item
-                #
-                # planilha['A' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['B' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['C' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['D' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['E' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['F' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['G' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['H' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['I' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['J' + str(cont)].alignment = alinhamentoEsquerda
-                # planilha['K' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['A' + str(cont)].font = ft_item
+    # planilha['B' + str(cont)].font = ft_item
+    # planilha['C' + str(cont)].font = ft_item
+    # planilha['D' + str(cont)].font = ft_item
+    # planilha['E' + str(cont)].font = ft_item
+    # planilha['F' + str(cont)].font = ft_item
+    # planilha['G' + str(cont)].font = ft_item
+    # planilha['I' + str(cont)].font = ft_item
+    # planilha['J' + str(cont)].font = ft_item
+    # planilha['K' + str(cont)].font = ft_item
+    # planilha['L' + str(cont)].font = ft_item
+    #
+    # planilha['A' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['B' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['C' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['D' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['E' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['F' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['G' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['H' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['I' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['J' + str(cont)].alignment = alinhamentoEsquerda
+    # planilha['K' + str(cont)].alignment = alinhamentoEsquerda
 
     #             if cont % 2 == 0:
     #                 planilha['A' + str(cont)].fill = preenchimentoCinza
@@ -1928,16 +2305,16 @@ def gerar_xlsx(request,id):
     # planilha['G' + str(cont)].border = bordaSuperior
     # planilha['H' + str(cont)].border = bordaSuperior
 
-
-    wb.save('documents/documents/media/Planilha ' +nome_doc+'.xlsx')
+    wb.save('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     gerar_planilha(nome_doc)
-    return redirect ('listar_downloads')
+    return redirect('listar_downloads')
+
 
 @login_required
-def gerar_docx(request,id):
+def gerar_docx(request, id):
     nome_doc = Projeto.objects.get(id=id).nome_projeto
     produtos = Produtos.objects.order_by('nome')
-    lista = ListaMaterial.objects.filter(projeto = id).order_by('produto__nome')
+    lista = ListaMaterial.objects.filter(projeto=id).order_by('produto__nome')
     grupos = Grupos.objects.all()
     cgrupo = 1
 
@@ -1947,7 +2324,8 @@ def gerar_docx(request,id):
     doc.paragraphs[0].runs[0].font.size = Pt(16)
     doc.paragraphs[0].runs[0].font.bold = True
     doc.paragraphs[0].runs[0].font.name = 'Calibri'
-    doc.add_paragraph('TODOS OS PRODUTOS OFERTADOS DEVERÃO TER, EM SUA COMPOSIÇÃO DE CUSTOS, OS VALORES REFERENTE A INSTALAÇÃO.').alignment = WD_ALIGN_PARAGRAPH.LEFT
+    doc.add_paragraph(
+        'TODOS OS PRODUTOS OFERTADOS DEVERÃO TER, EM SUA COMPOSIÇÃO DE CUSTOS, OS VALORES REFERENTE A INSTALAÇÃO.').alignment = WD_ALIGN_PARAGRAPH.LEFT
     doc.paragraphs[0].runs[0].font.size = Pt(16)
     doc.paragraphs[1].runs[0].font.size = Pt(11)
     doc.paragraphs[1].runs[0].font.name = 'Calibri'
@@ -1957,13 +2335,11 @@ def gerar_docx(request,id):
     doc.paragraphs[2].runs[0].font.name = 'Calibri'
     doc.paragraphs[2].runs[0].font.color.rgb = RGBColor(79, 129, 189)
 
-
-
     for grupo in grupos:
         if group_check(grupo.nome):
             contador = 1
             index_group = doc.add_paragraph()
-            titulo = ('GRUPO ', str(cgrupo),' ', grupo.nome)
+            titulo = ('GRUPO ', str(cgrupo), ' ', grupo.nome)
             nome = index_group.add_run(titulo)
             nome.font.bold = True
             nome.font.color.rgb = RGBColor(79, 129, 189)
@@ -1979,7 +2355,7 @@ def gerar_docx(request,id):
                         font.size = docx.shared.Pt(11)
                         descricao = produto.descricao
                         descricao = descricao.splitlines()
-                        titulo = (str(cgrupo)+'.' + str(contador) + ' ' + produto.nome)
+                        titulo = (str(cgrupo) + '.' + str(contador) + ' ' + produto.nome)
 
                         paragrafo = doc.add_paragraph()
                         nome = paragrafo.add_run((titulo))
@@ -1993,11 +2369,10 @@ def gerar_docx(request,id):
                             )
             cgrupo += 1
 
-
-    doc.save('documents/documents/media/Anexos ' + nome_doc +'.docx')
+    doc.save('documents/documents/media/Anexos ' + nome_doc + '.docx')
     gerar_doc(nome_doc)
 
-    return redirect ('listar_downloads')
+    return redirect('listar_downloads')
 
 
 # FUNÇÃO PARA CHECAR SE HÁ ITENS NO GRUPO SOLICITADO.
@@ -2011,41 +2386,43 @@ def group_check(grupo):
 
     return False
 
-def gerar_doc(nome):
 
-    f = File(open(os.path.join(settings.MEDIA_ROOT,'documents/media/Anexos ' + nome +'.docx'),'rb'))
+def gerar_doc(nome):
+    f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Anexos ' + nome + '.docx'), 'rb'))
     doc = DocFiles()
     doc.docupload = f
 
-    doc.title ='Anexos ' + nome
+    doc.title = 'Anexos ' + nome
 
     doc.save(nome)
 
-def gerar_planilha(nome):
 
+def gerar_planilha(nome):
     f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
     doc = DocFiles()
     doc.docupload = f
 
-    doc.title ='Planilha ' + nome
+    doc.title = 'Planilha ' + nome
 
     doc.save(nome)
 
 
 def download_doc(path):
-    file_path=os.path.join(settings.MEDIA_ROOT,path)
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
     if os.path.exists(file_path):
-        with open(file_path,'rb') as fh:
-            response = HttpResponse(fh.read(),content_type="aplication/docupload" )
-            response['Content-Disposition'] = 'inline;  filename='+os.path.basename(file_path)
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="aplication/docupload")
+            response['Content-Disposition'] = 'inline;  filename=' + os.path.basename(file_path)
             return response
         raise Http404
 
-def listar_download(request):
-    files = {'files' : DocFiles.objects.all()}
-    return render(request,'download_list.html', files)
 
-def get_name_docx(request,id):
+def listar_download(request):
+    files = {'files': DocFiles.objects.all()}
+    return render(request, 'download_list.html', files)
+
+
+def get_name_docx(request, id):
     if request.method == 'POST':
         form = NameForm(request.POST)
         if form.is_valid():
@@ -2055,10 +2432,10 @@ def get_name_docx(request,id):
 
     else:
         form = NameForm()
-    return render(request,'formulario_docs.html', {'form' : form})
+    return render(request, 'formulario_docs.html', {'form': form})
+
 
 def get_name_xlsx(request):
-
     if request.method == 'POST':
         form = NameForm(request.POST)
 
@@ -2070,19 +2447,20 @@ def get_name_xlsx(request):
     else:
         form = NameForm()
 
-    return render(request,'formulario_docs.html', {'form' : form})
+    return render(request, 'formulario_docs.html', {'form': form})
+
 
 @login_required
-def delete_doc(request,id):
-
-    documento = get_object_or_404(DocFiles, id =  id)
+def delete_doc(request, id):
+    documento = get_object_or_404(DocFiles, id=id)
     try:
-        os.remove('documents/documents/media/' + documento.title +'.docx')
+        os.remove('documents/documents/media/' + documento.title + '.docx')
     except:
         os.remove('documents/documents/media/' + documento.title + '.xlsx')
     os.remove(str(documento.docupload))
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')
+
 
 def limpar_lista(request):
     lista = ListaMaterial.objects.all()
@@ -2092,35 +2470,37 @@ def limpar_lista(request):
 
     return redirect('adicionar_lista')
 
+
 @login_required
 def listar_projetos(request):
     busca = request.GET.get('pesquisa', None)
 
     if busca:
         # contatos = Contatos.objects.all()
-        projetos = {'projetos' :Projeto.objects.filter(nome_projeto__icontains=busca)}
+        projetos = {'projetos': Projeto.objects.filter(nome_projeto__icontains=busca)}
     else:
-        projetos = {'projetos' : Projeto.objects.order_by('nome_projeto')}
+        projetos = {'projetos': Projeto.objects.order_by('nome_projeto')}
 
     return render(request, 'index.html', projetos)
 
+
 def vincular_projeto(id):
-    projeto = Projeto.objects.get(id= id)
-    lista = ListaMaterial.objects.get(projeto = None)
+    projeto = Projeto.objects.get(id=id)
+    lista = ListaMaterial.objects.get(projeto=None)
     lista.projeto = projeto
     lista.save()
 
 
-def deletar_projeto(request,id):
+def deletar_projeto(request, id):
     projeto = get_object_or_404(Projeto, id=id)
 
     if request.method == 'POST':
-
         projeto.delete()
 
         return redirect('lista_projetos')
 
     return render(request, 'confirmar_delete_produto.html', {'projeto': projeto})
+
 
 @login_required
 def get_perfil_logado(request):

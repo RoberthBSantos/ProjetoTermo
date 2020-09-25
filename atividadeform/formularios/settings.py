@@ -133,3 +133,5 @@ MEDIA_ROOT=os.path.join(BASE_DIR,'documents')
 LOGIN_URL='/login/'
 LOGOUT_URL='/logout/'
 LOGIN_REDIRECT_URL='/'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

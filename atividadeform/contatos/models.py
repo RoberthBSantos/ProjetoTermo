@@ -24,7 +24,7 @@ class Produtos(models.Model):
     unidade = models.CharField(max_length=15,blank=True,default='UND')
     grupo = models.ForeignKey(Grupos,null=True,blank=True, on_delete= models.PROTECT)
     descricao = models.TextField(null= True,blank= True, max_length=2000, default="")
-    valor = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    valor_de_compra = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     fornecedor = models.ForeignKey(Fornecedor,null=True, blank=True, on_delete = models.PROTECT)
     tempo_de_instalacao = models.IntegerField(blank=True,default=1)
     data = models.DateTimeField()
@@ -51,7 +51,7 @@ class ListaMaterial (models.Model):
 
     @property
     def custo_produto(self):
-        total = ((self.projeto.margem/100) * float(self.produto.valor)) + float(self.produto.valor)
+        total = ((self.projeto.margem/100) * float(self.produto.valor_de_compra)) + float(self.produto.valor_de_compra)
 
         return total
 
@@ -64,7 +64,7 @@ class ListaMaterial (models.Model):
     @property
     def custo_venda(self):
         total = ((self.produto.tempo_de_instalacao / 60) * float(self.projeto.valor_infra)) \
-                + (((self.projeto.margem / 100) * float(self.produto.valor)) + float(self.produto.valor))
+                + (((self.projeto.margem / 100) * float(self.produto.valor_de_compra)) + float(self.produto.valor_de_compra))
 
         return total
 

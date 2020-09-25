@@ -3,57 +3,58 @@
 
 {%block title%} Formulario {%endblock%}
 {% block main %}
-    <h1>{{projeto.nome_projeto}}</h1>
+<h1>{{projeto.nome_projeto}}</h1>
 <!--    <input type="text" class="form-control" id="documento" name="documento" placeholder="Nome do Projeto">-->
-    <form method="POST">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <div class="alert alert-info clearfix">
-        <button type="submit" class="btn btn-success pull-right" >Adicionar a lista</button>
-            <a href="{% url 'gerar_documento' projeto.id %}" class="btn btn-primary">Gerar arquivo xlsx</a>
-         <a href="{% url 'gerar_docx' projeto.id%}" class="btn btn-primary">Gerar docx</a>
-<!--            <a href="{% url 'listar_downloads' %}" class="btn btn-primary">Lista de Downloads</a>-->
-            <button type="button" class="btn btn-danger" onclick="confirmarDelete()">Limpar Lista</button>
+<form method="POST">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="alert alert-info clearfix">
+        <button type="submit" class="btn btn-success pull-right">Adicionar a lista</button>
+        <a href="{% url 'gerar_documento' projeto.id %}" class="btn btn-primary">Gerar arquivo xlsx</a>
+        <a href="{% url 'gerar_docx' projeto.id%}" class="btn btn-primary">Gerar docx</a>
+        <!--            <a href="{% url 'listar_downloads' %}" class="btn btn-primary">Lista de Downloads</a>-->
+        <button type="button" class="btn btn-danger" onclick="confirmarDelete()">Limpar Lista</button>
 
-            </div>
+    </div>
 
-    </form>
-    <br>
+</form>
+<br>
 
-     <!--<h1>Produtos adicionados</h1>-->
-    <ul>
-        <!--{% for produto in produtos %}-->
-            <!--<li>{{ produto.produto }} <b>{{ produto.quantidade }}</b>-->
-
-
-                <!--<button onclick="confirmarDelete()">Deletar</button></li><hr>-->
+<!--<h1>Produtos adicionados</h1>-->
+<ul>
+    <!--{% for produto in produtos %}-->
+    <!--<li>{{ produto.produto }} <b>{{ produto.quantidade }}</b>-->
 
 
-<!--                     <script>-->
-<!--                        function confirmarDelete()-->
-<!--                        {-->
-<!--                        var x;-->
-<!--                        var r=confirm("Excluir postagem?");-->
-<!--                        if (r==true)-->
-<!--                          {-->
-<!--                          location.href="{% url 'limpar_lista' %}"-->
-<!--                          }-->
-<!--                        }-->
-<!--                     </script>-->
+    <!--<button onclick="confirmarDelete()">Deletar</button></li><hr>-->
 
-        <!--{% endfor %}-->
-        {% if infra|length > 0 %}
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                INFRAESTRUTURA
-             </a>
+
+    <!--                     <script>-->
+    <!--                        function confirmarDelete()-->
+    <!--                        {-->
+    <!--                        var x;-->
+    <!--                        var r=confirm("Excluir postagem?");-->
+    <!--                        if (r==true)-->
+    <!--                          {-->
+    <!--                          location.href="{% url 'limpar_lista' %}"-->
+    <!--                          }-->
+    <!--                        }-->
+    <!--                     </script>-->
+
+    <!--{% endfor %}-->
+    {% if infra|length > 0 %}
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            INFRAESTRUTURA
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -62,45 +63,66 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in infra %}
+                {% for produto in infra %}
 
 
                 <!--<a href="#" class="list-group-item list-group-item-action">{{ produto.produto }} | <b>{{ produto.quantidade }} UND</b></a>-->
-            <tbody>
+                <tbody>
                 <tr>
-                  <th scope="row">{{ forloop.counter }}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>R$     {{produto.produto.valor}}</td>
-                    <td>R$     {{produto.custo_produto|floatformat:2}}</td>
+                    <td>R$ {{produto.produto.valor_de_compra}}</td>
+                    <td>R$ {{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
                 </tr>
 
 
-<!--                <li class="list-group-item d-flex justify-content-between align-items-center">-->
-<!--                <a href="{%url 'atualizar_prod_lista' produto.id %}" class="list-group-item list-group-item-action">{{ produto.produto }}-->
-<!--                </a>-->
-<!--            <span class="badge badge-primary badge-pill">{{ produto.quantidade }}</span>-->
-<!--                <a href="{%url 'excluir_lista_produto' produto.id %}">-->
-<!--                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">-->
-<!--                      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>-->
-<!--                      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>-->
-<!--                    </svg>-->
-<!--                </a>-->
+                <!--                <li class="list-group-item d-flex justify-content-between align-items-center">-->
+                <!--                <a href="{%url 'atualizar_prod_lista' produto.id %}" class="list-group-item list-group-item-action">{{ produto.produto }}-->
+                <!--                </a>-->
+                <!--            <span class="badge badge-primary badge-pill">{{ produto.quantidade }}</span>-->
+                <!--                <a href="{%url 'excluir_lista_produto' produto.id %}">-->
+                <!--                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">-->
+                <!--                      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>-->
+                <!--                      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>-->
+                <!--                    </svg>-->
+                <!--                </a>-->
 
-<!--            </li>-->
+                <!--            </li>-->
 
-                    <script>
+                <script>
                         function confirmarDelete()
                         {
                         var x;
@@ -110,43 +132,46 @@
                           location.href="{% url 'limpar_lista' %}"
                           }
                         }
-                     </script>
+
+                </script>
 
                 <!--<button onclick="confirmarDelete()">Deletar</button></li><hr>-->
                 <!--<button type="button" class="btn btn-danger" onclick="confirmarDelete()">Deletar</button><hr>-->
 
-                     <!--<script>-->
-                        <!--function confirmarDelete()-->
-                        <!--{-->
-                        <!--var x;-->
-                        <!--var r=confirm("Excluir postagem?");-->
-                        <!--if (r==true)-->
-                          <!--{-->
-                          <!--location.href="{% url 'excluir_produto_lista' produto.id %}"-->
-                          <!--}-->
-                        <!--}-->
-                     <!--</script>-->
+                <!--<script>-->
+                <!--function confirmarDelete()-->
+                <!--{-->
+                <!--var x;-->
+                <!--var r=confirm("Excluir postagem?");-->
+                <!--if (r==true)-->
+                <!--{-->
+                <!--location.href="{% url 'excluir_produto_lista' produto.id %}"-->
+                <!--}-->
+                <!--}-->
+                <!--</script>-->
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
 
-        {% if serv_infra|length > 0 %}
+    </div>
+    {% endif %}
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                SERVIÇOS DE INFRAESTRUTURA
-             </a>
+    {% if serv_infra|length > 0 %}
+
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            SERVIÇOS DE INFRAESTRUTURA
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -155,48 +180,71 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in serv_infra %}
-            <tbody>
+                {% for produto in serv_infra %}
+                <tbody>
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
+    </div>
+    {% endif %}
 
-        {% if fibra|length > 0 %}
+    {% if fibra|length > 0 %}
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                FIBRA ÓPTICA
-             </a>
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            FIBRA ÓPTICA
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -205,47 +253,71 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in fibra %}
-            <tbody>
+                {% for produto in fibra %}
+                <tbody>
                 <tr>
-                  <th scope="row">1</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">1</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
-        {% if ferragens|length > 0 %}
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                FERRAGENS E ACESSÓRIOS
-             </a>
+    </div>
+    {% endif %}
+    {% if ferragens|length > 0 %}
+
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            FERRAGENS E ACESSÓRIOS
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -254,47 +326,71 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in ferragens %}
-            <tbody>
+                {% for produto in ferragens %}
+                <tbody>
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
-        {% if cabeamento|length > 0 %}
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                CABEAMENTO METÁLICO
-             </a>
+    </div>
+    {% endif %}
+    {% if cabeamento|length > 0 %}
+
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            CABEAMENTO METÁLICO
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -303,48 +399,72 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in cabeamento %}
-            <tbody>
+                {% for produto in cabeamento %}
+                <tbody>
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
-        {% if racks|length > 0 %}
+
+    </div>
+    {% endif %}
+    {% if racks|length > 0 %}
 
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                RACKS, GABINETES E ACESSÓRIOS
-             </a>
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            RACKS, GABINETES E ACESSÓRIOS
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -353,47 +473,71 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in racks %}
-            <tbody>
+                {% for produto in racks %}
+                <tbody>
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
-        {% if rede_eletrica|length > 0 %}
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                REDE ELÉTRICA
-             </a>
+    </div>
+    {% endif %}
+    {% if rede_eletrica|length > 0 %}
+
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            REDE ELÉTRICA
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -402,47 +546,71 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in rede_eletrica %}
-            <tbody>
+                {% for produto in rede_eletrica %}
+                <tbody>
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
-        {% if servicos_rede|length > 0 %}
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                SERVIÇOS DE REDE
-             </a>
+    </div>
+    {% endif %}
+    {% if servicos_rede|length > 0 %}
+
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            SERVIÇOS DE REDE
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -451,47 +619,71 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in servicos_rede %}
-            <tbody>
+                {% for produto in servicos_rede %}
+                <tbody>
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
-        {% if rede_de_dados_e_energia|length > 0 %}
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                REDE DE DADOS E ENERGIA
-             </a>
+    </div>
+    {% endif %}
+    {% if rede_de_dados_e_energia|length > 0 %}
+
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            REDE DE DADOS E ENERGIA
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -500,47 +692,71 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in rede_de_dados_e_energia %}
-            <tbody>
+                {% for produto in rede_de_dados_e_energia %}
+                <tbody>
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
-            {% endfor %}
+                {% endfor %}
 
-        </table>
-
+            </table>
         </div>
-        {% endif %}
-        {% if seguranca|length > 0 %}
 
-        <div class="list-group" style="text-align: center">
-            <a href="#" class="list-group-item list-group-item-action active">
-                SEGURANÇA
-             </a>
+    </div>
+    {% endif %}
+    {% if seguranca|length > 0 %}
+
+    <div class="list-group" style="text-align: center">
+        <a href="#" class="list-group-item list-group-item-action active">
+            SEGURANÇA
+        </a>
+        <div class="table-responsive">
             <table class="table table-bordered">
-              <thead>
+                <thead>
                 <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">FABRICANTE</th>
-                  <th scope="col">MODELO</th>
-                  <th scope="col">DESCRIÇÃO</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">FABRICANTE</th>
+                    <th scope="col">MODELO</th>
+                    <th scope="col">DESCRIÇÃO</th>
                     <th scope="col">UND</th>
                     <th scope="col">PONTOS</th>
                     <th scope="col">CUSTO PROD.</th>
@@ -549,38 +765,60 @@
                     <th scope="col">∆T SUP.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
+                    <th scope="col">QTD</th>
+                    <th scope="col"></th>
 
                 </tr>
-              </thead>
+                </thead>
 
-            {% for produto in seguranca %}
+                {% for produto in seguranca %}
 
-            <tbody>
+                <tbody>
                 <tr>
-                  <th scope="row">{{forloop.counter}}</th>
-                  <td>{{produto.produto.fabricante}}</td>
-                  <td>{{produto.produto.modelo}}</td>
-                  <td>{{produto.produto.nome}}</td>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{produto.produto.fabricante}}</td>
+                    <td>{{produto.produto.modelo}}</td>
+                    <td>{{produto.produto.nome}}</td>
                     <td>{{produto.produto.unidade}}</td>
                     <td>{{produto.pontos}}</td>
-                    <td>{{produto.produto.valor}}</td>
+                    <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
                     <td></td>
-                    <td>R$     {{produto.custo_servico|floatformat:2}}</td>
-                    <td>R$     {{produto.custo_venda|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_servico|floatformat:2}}</td>
+                    <td>R$ {{produto.custo_venda|floatformat:2}}</td>
+                    <td>{{produto.quantidade}}</td>
+                    <td><a href="{%url 'excluir_lista_produto' produto.id %}">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                    </a>
+
+                        <a href="{%url 'atualizar_prod_lista' produto.id %}">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                        </a>
+
+                    </td>
+
                 </tr>
 
 
+                {% endfor %}
 
-            {% endfor %}
-
-        </table>
-
+            </table>
         </div>
-        {% endif %}
+
+    </div>
+    {% endif %}
 
 
-    </ul>
+</ul>
 
 {% endblock %}
