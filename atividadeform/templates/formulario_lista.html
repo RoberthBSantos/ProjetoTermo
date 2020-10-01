@@ -21,7 +21,7 @@
 <br>
 
 <!--<h1>Produtos adicionados</h1>-->
-<ul>
+
     <!--{% for produto in produtos %}-->
     <!--<li>{{ produto.produto }} <b>{{ produto.quantidade }}</b>-->
 
@@ -64,6 +64,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -84,10 +85,15 @@
                     <td>R$ {{produto.produto.valor_de_compra}}</td>
                     <td>R$ {{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -109,18 +115,6 @@
                 </tr>
 
 
-                <!--                <li class="list-group-item d-flex justify-content-between align-items-center">-->
-                <!--                <a href="{%url 'atualizar_prod_lista' produto.id %}" class="list-group-item list-group-item-action">{{ produto.produto }}-->
-                <!--                </a>-->
-                <!--            <span class="badge badge-primary badge-pill">{{ produto.quantidade }}</span>-->
-                <!--                <a href="{%url 'excluir_lista_produto' produto.id %}">-->
-                <!--                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">-->
-                <!--                      <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>-->
-                <!--                      <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>-->
-                <!--                    </svg>-->
-                <!--                </a>-->
-
-                <!--            </li>-->
 
                 <script>
                         function confirmarDelete()
@@ -135,20 +129,6 @@
 
                 </script>
 
-                <!--<button onclick="confirmarDelete()">Deletar</button></li><hr>-->
-                <!--<button type="button" class="btn btn-danger" onclick="confirmarDelete()">Deletar</button><hr>-->
-
-                <!--<script>-->
-                <!--function confirmarDelete()-->
-                <!--{-->
-                <!--var x;-->
-                <!--var r=confirm("Excluir postagem?");-->
-                <!--if (r==true)-->
-                <!--{-->
-                <!--location.href="{% url 'excluir_produto_lista' produto.id %}"-->
-                <!--}-->
-                <!--}-->
-                <!--</script>-->
 
                 {% endfor %}
 
@@ -181,6 +161,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -198,10 +179,15 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                   {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -254,6 +240,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -271,10 +258,15 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -327,6 +319,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -344,10 +337,15 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -400,6 +398,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -417,10 +416,15 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -474,6 +478,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -491,10 +496,15 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -547,6 +557,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -564,10 +575,15 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -620,6 +636,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -637,10 +654,15 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -693,6 +715,7 @@
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -710,10 +733,15 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -763,9 +791,11 @@
                     <th scope="col">VENDA PROD.</th>
                     <th scope="col">∆T INF.</th>
                     <th scope="col">∆T SUP.</th>
+                    <th scope="col">SERV. TERC.</th>
                     <th scope="col">SERVIÇO</th>
                     <th scope="col">PREÇO</th>
                     <th scope="col">QTD</th>
+                    <th scope="col">SUBTOTAL</th>
                     <th scope="col"></th>
 
                 </tr>
@@ -784,10 +814,16 @@
                     <td>{{produto.produto.valor_de_compra}}</td>
                     <td>{{produto.custo_produto|floatformat:2}}</td>
                     <td>{{produto.produto.tempo_de_instalacao}}</td>
+                    {% if produto.produto.tempo_de_sup > 0 %}
+                    <td>{{produto.produto.tempo_de_sup}}</td>
+                    {% else %}
                     <td></td>
+                    {% endif %}
+                    <td>{{produto.produto.valor_de_terceiros}}</td>
                     <td>R$ {{produto.custo_servico|floatformat:2}}</td>
                     <td>R$ {{produto.custo_venda|floatformat:2}}</td>
                     <td>{{produto.quantidade}}</td>
+                    <td>{{produto.subtotal|floatformat:2}}</td>
                     <td><a href="{%url 'excluir_lista_produto' produto.id %}">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
                              xmlns="http://www.w3.org/2000/svg">
@@ -819,6 +855,6 @@
     {% endif %}
 
 
-</ul>
+
 
 {% endblock %}

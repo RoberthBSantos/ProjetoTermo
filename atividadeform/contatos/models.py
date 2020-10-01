@@ -27,6 +27,8 @@ class Produtos(models.Model):
     valor_de_compra = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     fornecedor = models.ForeignKey(Fornecedor,null=True, blank=True, on_delete = models.PROTECT)
     tempo_de_instalacao = models.IntegerField(blank=True,default=1)
+    tempo_de_sup = models.IntegerField(blank = True, default= 0)
+    valor_de_terceiros = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     data = models.DateTimeField()
 
     class Meta:
@@ -39,7 +41,11 @@ class Produtos(models.Model):
 class Projeto (models.Model):
     nome_projeto = models.CharField(max_length= 300)
     margem = models.IntegerField(null=True,blank=True)
-    valor_infra = models.IntegerField(default=40)
+    valor_infra = models.IntegerField(default = 40)
+    valor_sup = models.DecimalField(default = 64.00,decimal_places=2,max_digits=5)
+    valor_upi = models.DecimalField(default = 0.70,decimal_places=2,max_digits=5)
+    valor_upr = models.DecimalField(default = 0.80,decimal_places=2,max_digits=5)
+    valor_upe = models.DecimalField(default = 0.90,decimal_places=2,max_digits=5)
 
     def __str__(self):
         return str(self.nome_projeto)
@@ -57,7 +63,8 @@ class ListaMaterial (models.Model):
 
     @property
     def custo_servico(self):
-        total = (self.produto.tempo_de_instalacao / 60) * float(self.projeto.valor_infra)
+        total = ((self.produto.tempo_de_instalacao / 60) * float(self.projeto.valor_infra) +
+                 (self.produto.tempo_de_sup / 60) * float(self.projeto.valor_sup))
 
         return total
 
@@ -71,15 +78,19 @@ class ListaMaterial (models.Model):
     @property
     def pontos(self):
         if self.produto.grupo.nome == 'INFRAESTRUTURA' or self.produto.grupo.nome == 'SERVIÇOS DE INFRAESTRUTURA':
-            total = self.custo_venda / 0.70
+            total = self.custo_venda / float(self.projeto.valor_upi)
             return  round(total+0.5)
         elif self.produto.grupo.nome == 'REDE DE DADOS E ENERGIA' or self.produto.grupo.nome == 'SEGURANÇA':
-            total = self.custo_venda / .90
+            total = self.custo_venda / float(self.projeto.valor_upe)
             return round(total+0.5)
         else:
-            total = self.custo_venda / .80
+            total = self.custo_venda / float(self.projeto.valor_upr)
             return round(total+0.5)
 
+    @property
+    def subtotal(self):
+        subtotal = (self.custo_venda * self.quantidade) + float(self.produto.valor_de_terceiros)
+        return subtotal
 
     def __str__(self):
         return self.produto.nome
