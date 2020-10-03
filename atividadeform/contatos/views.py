@@ -126,6 +126,9 @@ def excluir_lista_produto(request, id):
     if request.method == 'POST':
         produto.delete()
         return redirect('lista/id/', id_lista)
+    grupos = Grupos.objects.all()
+    for grupo in grupos:
+        print(grupo.nome)
 
     # if request.method is not 'POST':
     #     post_delete=Contatos.objects.filter(id=id)
@@ -182,10 +185,10 @@ def nova_lista(request, id):
     count = 1
 
     if form.is_valid():
+
         form.save()
         vincular_projeto(id)
 
-        produtos = ListaMaterial.objects.order_by('produto__nome')
 
         return redirect('lista/id/', id)
 
@@ -221,7 +224,13 @@ def excluir_prod_lista(request, id):
         id_lista = ListaMaterial.objects.filter(id=id).projeto
         ListaMaterial.objects.filter(id=id).delete()
 
+        grupos = Grupos.objects.all()
+        for grupo in grupos:
+            print(grupo.nome)
+
         return redirect('lista/id/', id_lista)
+
+
 
 
 @login_required
@@ -229,19 +238,20 @@ def gerar_xlsx(request, id):
     nome_doc = Projeto.objects.get(id=id).nome_projeto
     produtos = Produtos.objects.order_by('nome')
     lista = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='INFRAESTRUTURA')
+    grupos = Grupos.objects.all()
 
     ##################  LISTAS DE MATERIAIS SEPARADAS POR GRUPO #########################
 
-    lista_infra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='INFRAESTRUTURA')
-    lista_serv_infra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SERVIÇOS DE INFRAESTRUTURA')
-    lista_fibra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='FIBRA ÓPTICA')
-    lista_ferragens = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='FERRAGENS E ACESSÓRIOS')
-    lista_cabeamento = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='CABEAMENTO METÁLICO')
-    lista_rack = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='RACKS, GABINETES E ACESSÓRIOS')
-    lista_rede_eletrica = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='REDE ELÉTRICA')
-    lista_servicos_rede = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SERVIÇOS DE REDE')
-    lista_rede_energia = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='REDE DE DADOS E ENERGIA')
-    lista_seguranca = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SEGURANÇA')
+    # lista_infra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='INFRAESTRUTURA')
+    # lista_serv_infra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SERVIÇOS DE INFRAESTRUTURA')
+    # lista_fibra = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='FIBRA ÓPTICA')
+    # lista_ferragens = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='FERRAGENS E ACESSÓRIOS')
+    # lista_cabeamento = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='CABEAMENTO METÁLICO')
+    # lista_rack = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='RACKS, GABINETES E ACESSÓRIOS')
+    # lista_rede_eletrica = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='REDE ELÉTRICA')
+    # lista_servicos_rede = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SERVIÇOS DE REDE')
+    # lista_rede_energia = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='REDE DE DADOS E ENERGIA')
+    # lista_seguranca = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='SEGURANÇA')
 
     wb = openpyxl.Workbook()
     cont = 2
@@ -273,58 +283,162 @@ def gerar_xlsx(request, id):
 
     # COMEÇANDO A ESCREVER O ARQUIVO XLSX
     linha = 1
-    grupo = 1
+    i_grupo = 1
     i = 1
-    while i <= 3:
-        if i == 1:
-            if len(lista_infra) > 0:
-                planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
-                planilha['A' + str(linha)] = 'UPI (UNIDADE DE PLANTA DE INFRAESTRUTURA)'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoAzul
-                planilha['A' + str(linha)].font = ft_cabecalho
 
-                linha += 1
+    for grupo in grupos:
+        if grupo.nome == 'INFRAESTRUTURA':
+            planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
+            planilha['A' + str(linha)] = 'UPI (UNIDADE DE PLANTA DE INFRAESTRUTURA)'
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['A' + str(linha)].fill = preenchimentoAzul
+            planilha['A' + str(linha)].font = ft_cabecalho
 
-                ########################## GRUPO 01 #############################
+            linha += 1
+        if grupo.nome == 'FIBRA ÓPTICA':
+            planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
+            planilha['A' + str(linha)] = 'UPR (UNIDADE DE PLANTA DE REDE)'
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['A' + str(linha)].fill = preenchimentoAzul
+            planilha['A' + str(linha)].font = ft_cabecalho
 
-                planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-INFRAESTRUTURA'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
+            linha += 1
+        if grupo.nome == 'REDE DE DADOS E ENERGIA':
+            planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
+            planilha['A' + str(linha)] = 'UPE (UNIDADE DE PLANTA DE EQUIPAMENTO)'
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['A' + str(linha)].fill = preenchimentoAzul
+            planilha['A' + str(linha)].font = ft_cabecalho
 
-                linha += 1
+            linha += 1
+        lista_grupo = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome=grupo.nome)
+        if len(lista_grupo) > 0:
+            planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
+            planilha['A' + str(linha)] = 'GRUPO ' + str(i_grupo) +' '+ grupo.nome
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['A' + str(linha)].fill = preenchimentoGrupo
+            planilha['A' + str(linha)].font = ft_cabecalho
 
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-                planilha['N' + str(linha)].fill = preenchimentoGrupo
+            linha += 1
 
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-                planilha['N' + str(linha)].font = ft_cabecalho
+            planilha['A' + str(linha)].fill = preenchimentoGrupo
+            planilha['B' + str(linha)].fill = preenchimentoGrupo
+            planilha['C' + str(linha)].fill = preenchimentoGrupo
+            planilha['D' + str(linha)].fill = preenchimentoGrupo
+            planilha['E' + str(linha)].fill = preenchimentoGrupo
+            planilha['F' + str(linha)].fill = preenchimentoGrupo
+            planilha['G' + str(linha)].fill = preenchimentoGrupo
+            planilha['H' + str(linha)].fill = preenchimentoGrupo
+            planilha['I' + str(linha)].fill = preenchimentoGrupo
+            planilha['J' + str(linha)].fill = preenchimentoGrupo
+            planilha['K' + str(linha)].fill = preenchimentoGrupo
+            planilha['L' + str(linha)].fill = preenchimentoGrupo
+            planilha['M' + str(linha)].fill = preenchimentoGrupo
+            planilha['N' + str(linha)].fill = preenchimentoGrupo
+
+            planilha['A' + str(linha)].font = ft_cabecalho
+            planilha['B' + str(linha)].font = ft_cabecalho
+            planilha['C' + str(linha)].font = ft_cabecalho
+            planilha['D' + str(linha)].font = ft_cabecalho
+            planilha['E' + str(linha)].font = ft_cabecalho
+            planilha['F' + str(linha)].font = ft_cabecalho
+            planilha['G' + str(linha)].font = ft_cabecalho
+            planilha['H' + str(linha)].font = ft_cabecalho
+            planilha['I' + str(linha)].font = ft_cabecalho
+            planilha['J' + str(linha)].font = ft_cabecalho
+            planilha['K' + str(linha)].font = ft_cabecalho
+            planilha['L' + str(linha)].font = ft_cabecalho
+            planilha['M' + str(linha)].font = ft_cabecalho
+            planilha['N' + str(linha)].font = ft_cabecalho
+
+            planilha['A' + str(linha)].border = borda
+            planilha['B' + str(linha)].border = borda
+            planilha['C' + str(linha)].border = borda
+            planilha['D' + str(linha)].border = borda
+            planilha['E' + str(linha)].border = borda
+            planilha['F' + str(linha)].border = borda
+            planilha['G' + str(linha)].border = borda
+            planilha['H' + str(linha)].border = borda
+            planilha['I' + str(linha)].border = borda
+            planilha['J' + str(linha)].border = borda
+            planilha['K' + str(linha)].border = borda
+            planilha['L' + str(linha)].border = borda
+            planilha['M' + str(linha)].border = borda
+            planilha['N' + str(linha)].border = borda
+
+            planilha['A' + str(linha)].alignment = alinhamento
+            planilha['B' + str(linha)].alignment = alinhamento
+            planilha['C' + str(linha)].alignment = alinhamento
+            planilha['D' + str(linha)].alignment = alinhamento
+            planilha['E' + str(linha)].alignment = alinhamento
+            planilha['F' + str(linha)].alignment = alinhamento
+            planilha['G' + str(linha)].alignment = alinhamento
+            planilha['H' + str(linha)].alignment = alinhamento
+            planilha['I' + str(linha)].alignment = alinhamento
+            planilha['J' + str(linha)].alignment = alinhamento
+            planilha['K' + str(linha)].alignment = alinhamento
+            planilha['L' + str(linha)].alignment = alinhamento
+            planilha['M' + str(linha)].alignment = alinhamento
+            planilha['N' + str(linha)].alignment = alinhamento
+
+            planilha['A' + str(linha)] = 'FABRICANTE'
+            planilha['B' + str(linha)] = 'MODELO'
+            planilha['C' + str(linha)] = 'DESCRIÇÃO'
+            planilha['D' + str(linha)] = 'UND'
+            planilha['E' + str(linha)] = 'PONTOS'
+            planilha['F' + str(linha)] = 'CUSTO PROD.'
+            planilha['G' + str(linha)] = 'VENDA PROD.'
+            planilha['H' + str(linha)] = '∆T INF.'
+            planilha['I' + str(linha)] = '∆T SUP.'
+            planilha['J' + str(linha)] = 'SERV. TERC.'
+            planilha['K' + str(linha)] = 'SERVIÇO'
+            planilha['L' + str(linha)] = 'QTD'
+            planilha['M' + str(linha)] = 'PREÇO'
+            planilha['N' + str(linha)] = 'SUBTOTAL'
+
+            linha += 1
+
+            indice = linha
+
+            for item in lista_grupo:
+
+                planilha['A' + str(linha)] = item.produto.fabricante
+                planilha['B' + str(linha)] = item.produto.modelo
+                planilha['C' + str(linha)] = item.produto.nome
+                planilha['D' + str(linha)] = item.produto.unidade
+                planilha['E' + str(linha)] = item.pontos
+                planilha['F' + str(linha)] = item.produto.valor_de_compra
+                planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+                planilha['G' + str(linha)] = item.custo_produto
+                planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+                if item.produto.tempo_de_sup > 0:
+                    planilha['I' + str(linha)] = item.produto.tempo_de_sup
+                if item.produto.valor_de_terceiros > 0:
+                    planilha['J' + str(linha)] = item.produto.valor_de_terceiros
+                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['K' + str(linha)] = item.custo_servico
+                planilha['K' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['L' + str(linha)] = item.quantidade
+                planilha['M' + str(linha)] = item.custo_venda
+                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+                planilha['N' + str(linha)] = '= M' + str(linha) + '*L' + str(linha)
+                planilha['N' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+
+                planilha['A' + str(linha)].font = ft_item
+                planilha['B' + str(linha)].font = ft_item
+                planilha['C' + str(linha)].font = ft_item
+                planilha['D' + str(linha)].font = ft_item
+                planilha['E' + str(linha)].font = ft_item
+                planilha['F' + str(linha)].font = ft_item
+                planilha['G' + str(linha)].font = ft_item
+                planilha['I' + str(linha)].font = ft_item
+                planilha['J' + str(linha)].font = ft_item
+                planilha['K' + str(linha)].font = ft_item
+                planilha['L' + str(linha)].font = ft_item
+                planilha['M' + str(linha)].font = ft_item
+                planilha['N' + str(linha)].font = ft_item
 
                 planilha['A' + str(linha)].border = borda
                 planilha['B' + str(linha)].border = borda
@@ -343,1845 +457,1968 @@ def gerar_xlsx(request, id):
 
                 planilha['A' + str(linha)].alignment = alinhamento
                 planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
+                planilha['C' + str(linha)].alignment = alinhamentoEsquerda
                 planilha['D' + str(linha)].alignment = alinhamento
                 planilha['E' + str(linha)].alignment = alinhamento
                 planilha['F' + str(linha)].alignment = alinhamento
                 planilha['G' + str(linha)].alignment = alinhamento
                 planilha['H' + str(linha)].alignment = alinhamento
                 planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
                 planilha['K' + str(linha)].alignment = alinhamento
                 planilha['L' + str(linha)].alignment = alinhamento
                 planilha['M' + str(linha)].alignment = alinhamento
                 planilha['N' + str(linha)].alignment = alinhamento
 
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERV. TERC.'
-                planilha['K' + str(linha)] = 'SERVIÇO'
-                planilha['L' + str(linha)] = 'QTD'
-                planilha['M' + str(linha)] = 'PREÇO'
-                planilha['N' + str(linha)] = 'SUBTOTAL'
+                if linha % 2 == 0:
+                    planilha['A' + str(linha)].fill = preenchimentoCinza
+                    planilha['B' + str(linha)].fill = preenchimentoCinza
+                    planilha['C' + str(linha)].fill = preenchimentoCinza
+                    planilha['D' + str(linha)].fill = preenchimentoCinza
+                    planilha['E' + str(linha)].fill = preenchimentoCinza
+                    planilha['F' + str(linha)].fill = preenchimentoCinza
+                    planilha['G' + str(linha)].fill = preenchimentoCinza
+                    planilha['H' + str(linha)].fill = preenchimentoCinza
+                    planilha['I' + str(linha)].fill = preenchimentoCinza
+                    planilha['J' + str(linha)].fill = preenchimentoCinza
+                    planilha['K' + str(linha)].fill = preenchimentoCinza
+                    planilha['L' + str(linha)].fill = preenchimentoCinza
+                    planilha['M' + str(linha)].fill = preenchimentoCinza
+                    planilha['N' + str(linha)].fill = preenchimentoCinza
+
+                else:
+                    planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+                    planilha['N' + str(linha)].fill = preenchimentoAzulClaro
 
                 linha += 1
-
-                indice = linha
-
-                for item in lista_infra:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['K' + str(linha)] = item.custo_servico
-                    planilha['K' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['L' + str(linha)] = item.quantidade
-                    planilha['M' + str(linha)] = item.custo_venda
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['N' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['N' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-                    planilha['N' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-                    planilha['N' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-                    planilha['N' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-                        planilha['N' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['N' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-                planilha['N' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha -1) + ')'
-                planilha['N' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['N' + str(linha)].font = ft_item_negrito
-                planilha['N' + str(linha)].alignment = alinhamento
-                planilha['N' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-
-
-            ########################## GRUPO 02 #############################
-            if len(lista_serv_infra) > 0:
-                planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-SERVIÇOS DE INFRAESTRUTURA'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-                for item in lista_serv_infra:
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-        elif i == 2:
-
-            ########################## UPR #############################
-            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-            planilha['A' + str(linha)] = 'UPR (UNIDADE DE PLANTA DE REDE)'
-            planilha['A' + str(linha)].alignment = alinhamento
-            planilha['A' + str(linha)].fill = preenchimentoAzul
-            planilha['A' + str(linha)].font = ft_cabecalho
+            planilha['N' + str(linha)] = '= SUM(N' + str(indice) + ':N' + str(linha - 1) + ')'
+            planilha['N' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+            planilha['N' + str(linha)].font = ft_item_negrito
+            planilha['N' + str(linha)].alignment = alinhamento
+            planilha['N' + str(linha)].fill = preenchimentoVerde
 
             linha += 1
-
-
-            ########################## GRUPO 03 #############################
-            if len(lista_fibra) > 0:
-                planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-FIBRA ÓPTICA'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-                for item in lista_fibra:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-            ########################## GRUPO 04 #############################
-            if len(lista_ferragens) > 0:
-                planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-FERRAGENS E ACESSÓRIOS'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-                for item in lista_ferragens:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-            ########################## GRUPO 05 #############################
-            if len(lista_cabeamento) > 0:
-                planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-CABEAMENTO METÁLICO'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-                for item in lista_cabeamento:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-            ########################## GRUPO 06 #############################
-            if len(lista_rack) > 0:
-                planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-RACK, GABINETES E ACESSÓRIOS'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-                for item in lista_rack:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-            ########################## GRUPO 07 #############################
-            if len(lista_rede_eletrica) > 0:
-                planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-REDE ELÉTRICA'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-
-                for item in lista_rede_eletrica:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-            ########################## GRUPO 08 #############################
-            if len(lista_servicos_rede) > 0:
-                planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-SERVIÇOS DE REDE'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-
-                for item in lista_servicos_rede:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-
-        elif i == 3:
-
-            ########################## UPE #############################
-            planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-            planilha['A' + str(linha)] = 'UPE (UNIDADE DE PLANTA DE EQUIPAMENTO)'
-            planilha['A' + str(linha)].alignment = alinhamento
-            planilha['A' + str(linha)].fill = preenchimentoAzul
-            planilha['A' + str(linha)].font = ft_cabecalho
-
-            linha += 1
-
-
-
-            ########################## GRUPO 09 #############################
-            if len(lista_rede_energia) > 0:
-                planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-REDE DE DADOS E ENERGIA'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-                for item in lista_rede_energia:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-                grupo += 1
-
-            ########################## GRUPO 10 #############################
-            if len(lista_seguranca) > 0:
-                planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
-                planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-SEGURANÇA'
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['A' + str(linha)].font = ft_cabecalho
-
-                linha += 1
-
-                planilha['A' + str(linha)].fill = preenchimentoGrupo
-                planilha['B' + str(linha)].fill = preenchimentoGrupo
-                planilha['C' + str(linha)].fill = preenchimentoGrupo
-                planilha['D' + str(linha)].fill = preenchimentoGrupo
-                planilha['E' + str(linha)].fill = preenchimentoGrupo
-                planilha['F' + str(linha)].fill = preenchimentoGrupo
-                planilha['G' + str(linha)].fill = preenchimentoGrupo
-                planilha['H' + str(linha)].fill = preenchimentoGrupo
-                planilha['I' + str(linha)].fill = preenchimentoGrupo
-                planilha['J' + str(linha)].fill = preenchimentoGrupo
-                planilha['K' + str(linha)].fill = preenchimentoGrupo
-                planilha['L' + str(linha)].fill = preenchimentoGrupo
-                planilha['M' + str(linha)].fill = preenchimentoGrupo
-
-                planilha['A' + str(linha)].font = ft_cabecalho
-                planilha['B' + str(linha)].font = ft_cabecalho
-                planilha['C' + str(linha)].font = ft_cabecalho
-                planilha['D' + str(linha)].font = ft_cabecalho
-                planilha['E' + str(linha)].font = ft_cabecalho
-                planilha['F' + str(linha)].font = ft_cabecalho
-                planilha['G' + str(linha)].font = ft_cabecalho
-                planilha['H' + str(linha)].font = ft_cabecalho
-                planilha['I' + str(linha)].font = ft_cabecalho
-                planilha['J' + str(linha)].font = ft_cabecalho
-                planilha['K' + str(linha)].font = ft_cabecalho
-                planilha['L' + str(linha)].font = ft_cabecalho
-                planilha['M' + str(linha)].font = ft_cabecalho
-
-                planilha['A' + str(linha)].border = borda
-                planilha['B' + str(linha)].border = borda
-                planilha['C' + str(linha)].border = borda
-                planilha['D' + str(linha)].border = borda
-                planilha['E' + str(linha)].border = borda
-                planilha['F' + str(linha)].border = borda
-                planilha['G' + str(linha)].border = borda
-                planilha['H' + str(linha)].border = borda
-                planilha['I' + str(linha)].border = borda
-                planilha['J' + str(linha)].border = borda
-                planilha['K' + str(linha)].border = borda
-                planilha['L' + str(linha)].border = borda
-                planilha['M' + str(linha)].border = borda
-
-                planilha['A' + str(linha)].alignment = alinhamento
-                planilha['B' + str(linha)].alignment = alinhamento
-                planilha['C' + str(linha)].alignment = alinhamento
-                planilha['D' + str(linha)].alignment = alinhamento
-                planilha['E' + str(linha)].alignment = alinhamento
-                planilha['F' + str(linha)].alignment = alinhamento
-                planilha['G' + str(linha)].alignment = alinhamento
-                planilha['H' + str(linha)].alignment = alinhamento
-                planilha['I' + str(linha)].alignment = alinhamento
-                planilha['J' + str(linha)].alignment = alinhamento
-                planilha['K' + str(linha)].alignment = alinhamento
-                planilha['L' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].alignment = alinhamento
-
-                planilha['A' + str(linha)] = 'FABRICANTE'
-                planilha['B' + str(linha)] = 'MODELO'
-                planilha['C' + str(linha)] = 'DESCRIÇÃO'
-                planilha['D' + str(linha)] = 'UND'
-                planilha['E' + str(linha)] = 'PONTOS'
-                planilha['F' + str(linha)] = 'CUSTO PROD.'
-                planilha['G' + str(linha)] = 'VENDA PROD.'
-                planilha['H' + str(linha)] = '∆T INF.'
-                planilha['I' + str(linha)] = '∆T SUP.'
-                planilha['J' + str(linha)] = 'SERVIÇO'
-                planilha['K' + str(linha)] = 'QTD'
-                planilha['L' + str(linha)] = 'PREÇO'
-                planilha['M' + str(linha)] = 'SUBTOTAL'
-
-                linha += 1
-                indice = linha
-
-                for item in lista_seguranca:
-
-                    planilha['A' + str(linha)] = item.produto.fabricante
-                    planilha['B' + str(linha)] = item.produto.modelo
-                    planilha['C' + str(linha)] = item.produto.nome
-                    planilha['D' + str(linha)] = item.produto.unidade
-                    planilha['E' + str(linha)] = item.pontos
-                    planilha['F' + str(linha)] = item.produto.valor_de_compra
-                    planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-                    planilha['G' + str(linha)] = item.custo_produto
-                    planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
-                    planilha['I' + str(linha)] = ''
-                    planilha['J' + str(linha)] = item.custo_servico
-                    planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['K' + str(linha)] = item.quantidade
-                    planilha['L' + str(linha)] = item.custo_venda
-                    planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                    planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
-                    planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-
-                    planilha['A' + str(linha)].font = ft_item
-                    planilha['B' + str(linha)].font = ft_item
-                    planilha['C' + str(linha)].font = ft_item
-                    planilha['D' + str(linha)].font = ft_item
-                    planilha['E' + str(linha)].font = ft_item
-                    planilha['F' + str(linha)].font = ft_item
-                    planilha['G' + str(linha)].font = ft_item
-                    planilha['I' + str(linha)].font = ft_item
-                    planilha['J' + str(linha)].font = ft_item
-                    planilha['K' + str(linha)].font = ft_item
-                    planilha['L' + str(linha)].font = ft_item
-                    planilha['M' + str(linha)].font = ft_item
-
-                    planilha['A' + str(linha)].border = borda
-                    planilha['B' + str(linha)].border = borda
-                    planilha['C' + str(linha)].border = borda
-                    planilha['D' + str(linha)].border = borda
-                    planilha['E' + str(linha)].border = borda
-                    planilha['F' + str(linha)].border = borda
-                    planilha['G' + str(linha)].border = borda
-                    planilha['H' + str(linha)].border = borda
-                    planilha['I' + str(linha)].border = borda
-                    planilha['J' + str(linha)].border = borda
-                    planilha['K' + str(linha)].border = borda
-                    planilha['L' + str(linha)].border = borda
-                    planilha['M' + str(linha)].border = borda
-
-                    planilha['A' + str(linha)].alignment = alinhamento
-                    planilha['B' + str(linha)].alignment = alinhamento
-                    planilha['C' + str(linha)].alignment = alinhamentoEsquerda
-                    planilha['D' + str(linha)].alignment = alinhamento
-                    planilha['E' + str(linha)].alignment = alinhamento
-                    planilha['F' + str(linha)].alignment = alinhamento
-                    planilha['G' + str(linha)].alignment = alinhamento
-                    planilha['H' + str(linha)].alignment = alinhamento
-                    planilha['I' + str(linha)].alignment = alinhamento
-                    planilha['K' + str(linha)].alignment = alinhamento
-                    planilha['L' + str(linha)].alignment = alinhamento
-                    planilha['M' + str(linha)].alignment = alinhamento
-
-                    if linha % 2 == 0:
-                        planilha['A' + str(linha)].fill = preenchimentoCinza
-                        planilha['B' + str(linha)].fill = preenchimentoCinza
-                        planilha['C' + str(linha)].fill = preenchimentoCinza
-                        planilha['D' + str(linha)].fill = preenchimentoCinza
-                        planilha['E' + str(linha)].fill = preenchimentoCinza
-                        planilha['F' + str(linha)].fill = preenchimentoCinza
-                        planilha['G' + str(linha)].fill = preenchimentoCinza
-                        planilha['H' + str(linha)].fill = preenchimentoCinza
-                        planilha['I' + str(linha)].fill = preenchimentoCinza
-                        planilha['J' + str(linha)].fill = preenchimentoCinza
-                        planilha['K' + str(linha)].fill = preenchimentoCinza
-                        planilha['L' + str(linha)].fill = preenchimentoCinza
-                        planilha['M' + str(linha)].fill = preenchimentoCinza
-
-                    else:
-                        planilha['A' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['B' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['C' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['D' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['E' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['F' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['G' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['H' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['I' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['J' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['K' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['L' + str(linha)].fill = preenchimentoAzulClaro
-                        planilha['M' + str(linha)].fill = preenchimentoAzulClaro
-
-                    linha += 1
-                planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
-                planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
-                planilha['M' + str(linha)].font = ft_item_negrito
-                planilha['M' + str(linha)].alignment = alinhamento
-                planilha['M' + str(linha)].fill = preenchimentoVerde
-
-                linha += 1
-
-        i += 1
+            i_grupo += 1
+
+    ####################################### ANTIGO ######################################
+    # while i <= 3:
+    #     if i == 1:
+    #         if len(lista_infra) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
+    #             planilha['A' + str(linha)] = 'UPI (UNIDADE DE PLANTA DE INFRAESTRUTURA)'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoAzul
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             ########################## GRUPO 01 #############################
+    #
+    #             planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-INFRAESTRUTURA'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['N' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #             planilha['N' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #             planilha['N' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['N' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERV. TERC.'
+    #             planilha['K' + str(linha)] = 'SERVIÇO'
+    #             planilha['L' + str(linha)] = 'QTD'
+    #             planilha['M' + str(linha)] = 'PREÇO'
+    #             planilha['N' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #
+    #             indice = linha
+    #
+    #             for item in lista_infra:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['K' + str(linha)] = item.custo_servico
+    #                 planilha['K' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['L' + str(linha)] = item.quantidade
+    #                 planilha['M' + str(linha)] = item.custo_venda
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['N' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['N' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #                 planilha['N' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #                 planilha['N' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #                 planilha['N' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['N' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['N' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #             planilha['N' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha -1) + ')'
+    #             planilha['N' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['N' + str(linha)].font = ft_item_negrito
+    #             planilha['N' + str(linha)].alignment = alinhamento
+    #             planilha['N' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #
+    #
+    #         ########################## GRUPO 02 #############################
+    #         if len(lista_serv_infra) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-SERVIÇOS DE INFRAESTRUTURA'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #             for item in lista_serv_infra:
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #     elif i == 2:
+    #
+    #         ########################## UPR #############################
+    #         planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #         planilha['A' + str(linha)] = 'UPR (UNIDADE DE PLANTA DE REDE)'
+    #         planilha['A' + str(linha)].alignment = alinhamento
+    #         planilha['A' + str(linha)].fill = preenchimentoAzul
+    #         planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #         linha += 1
+    #
+    #
+    #         ########################## GRUPO 03 #############################
+    #         if len(lista_fibra) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-FIBRA ÓPTICA'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #             for item in lista_fibra:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #         ########################## GRUPO 04 #############################
+    #         if len(lista_ferragens) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-FERRAGENS E ACESSÓRIOS'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #             for item in lista_ferragens:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #         ########################## GRUPO 05 #############################
+    #         if len(lista_cabeamento) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-CABEAMENTO METÁLICO'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #             for item in lista_cabeamento:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #         ########################## GRUPO 06 #############################
+    #         if len(lista_rack) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-RACK, GABINETES E ACESSÓRIOS'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #             for item in lista_rack:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #         ########################## GRUPO 07 #############################
+    #         if len(lista_rede_eletrica) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-REDE ELÉTRICA'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #
+    #             for item in lista_rede_eletrica:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #         ########################## GRUPO 08 #############################
+    #         if len(lista_servicos_rede) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-SERVIÇOS DE REDE'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #
+    #             for item in lista_servicos_rede:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #
+    #     elif i == 3:
+    #
+    #         ########################## UPE #############################
+    #         planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #         planilha['A' + str(linha)] = 'UPE (UNIDADE DE PLANTA DE EQUIPAMENTO)'
+    #         planilha['A' + str(linha)].alignment = alinhamento
+    #         planilha['A' + str(linha)].fill = preenchimentoAzul
+    #         planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #         linha += 1
+    #
+    #
+    #
+    #         ########################## GRUPO 09 #############################
+    #         if len(lista_rede_energia) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-REDE DE DADOS E ENERGIA'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #             for item in lista_rede_energia:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #             grupo += 1
+    #
+    #         ########################## GRUPO 10 #############################
+    #         if len(lista_seguranca) > 0:
+    #             planilha.merge_cells('A' + str(linha) + ':M' + str(linha))
+    #             planilha['A' + str(linha)] = 'GRUPO '+ str(grupo)+'-SEGURANÇA'
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #
+    #             linha += 1
+    #
+    #             planilha['A' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['B' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['C' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['D' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['E' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['F' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['G' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['H' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['I' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['J' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['K' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['L' + str(linha)].fill = preenchimentoGrupo
+    #             planilha['M' + str(linha)].fill = preenchimentoGrupo
+    #
+    #             planilha['A' + str(linha)].font = ft_cabecalho
+    #             planilha['B' + str(linha)].font = ft_cabecalho
+    #             planilha['C' + str(linha)].font = ft_cabecalho
+    #             planilha['D' + str(linha)].font = ft_cabecalho
+    #             planilha['E' + str(linha)].font = ft_cabecalho
+    #             planilha['F' + str(linha)].font = ft_cabecalho
+    #             planilha['G' + str(linha)].font = ft_cabecalho
+    #             planilha['H' + str(linha)].font = ft_cabecalho
+    #             planilha['I' + str(linha)].font = ft_cabecalho
+    #             planilha['J' + str(linha)].font = ft_cabecalho
+    #             planilha['K' + str(linha)].font = ft_cabecalho
+    #             planilha['L' + str(linha)].font = ft_cabecalho
+    #             planilha['M' + str(linha)].font = ft_cabecalho
+    #
+    #             planilha['A' + str(linha)].border = borda
+    #             planilha['B' + str(linha)].border = borda
+    #             planilha['C' + str(linha)].border = borda
+    #             planilha['D' + str(linha)].border = borda
+    #             planilha['E' + str(linha)].border = borda
+    #             planilha['F' + str(linha)].border = borda
+    #             planilha['G' + str(linha)].border = borda
+    #             planilha['H' + str(linha)].border = borda
+    #             planilha['I' + str(linha)].border = borda
+    #             planilha['J' + str(linha)].border = borda
+    #             planilha['K' + str(linha)].border = borda
+    #             planilha['L' + str(linha)].border = borda
+    #             planilha['M' + str(linha)].border = borda
+    #
+    #             planilha['A' + str(linha)].alignment = alinhamento
+    #             planilha['B' + str(linha)].alignment = alinhamento
+    #             planilha['C' + str(linha)].alignment = alinhamento
+    #             planilha['D' + str(linha)].alignment = alinhamento
+    #             planilha['E' + str(linha)].alignment = alinhamento
+    #             planilha['F' + str(linha)].alignment = alinhamento
+    #             planilha['G' + str(linha)].alignment = alinhamento
+    #             planilha['H' + str(linha)].alignment = alinhamento
+    #             planilha['I' + str(linha)].alignment = alinhamento
+    #             planilha['J' + str(linha)].alignment = alinhamento
+    #             planilha['K' + str(linha)].alignment = alinhamento
+    #             planilha['L' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #             planilha['A' + str(linha)] = 'FABRICANTE'
+    #             planilha['B' + str(linha)] = 'MODELO'
+    #             planilha['C' + str(linha)] = 'DESCRIÇÃO'
+    #             planilha['D' + str(linha)] = 'UND'
+    #             planilha['E' + str(linha)] = 'PONTOS'
+    #             planilha['F' + str(linha)] = 'CUSTO PROD.'
+    #             planilha['G' + str(linha)] = 'VENDA PROD.'
+    #             planilha['H' + str(linha)] = '∆T INF.'
+    #             planilha['I' + str(linha)] = '∆T SUP.'
+    #             planilha['J' + str(linha)] = 'SERVIÇO'
+    #             planilha['K' + str(linha)] = 'QTD'
+    #             planilha['L' + str(linha)] = 'PREÇO'
+    #             planilha['M' + str(linha)] = 'SUBTOTAL'
+    #
+    #             linha += 1
+    #             indice = linha
+    #
+    #             for item in lista_seguranca:
+    #
+    #                 planilha['A' + str(linha)] = item.produto.fabricante
+    #                 planilha['B' + str(linha)] = item.produto.modelo
+    #                 planilha['C' + str(linha)] = item.produto.nome
+    #                 planilha['D' + str(linha)] = item.produto.unidade
+    #                 planilha['E' + str(linha)] = item.pontos
+    #                 planilha['F' + str(linha)] = item.produto.valor_de_compra
+    #                 planilha['F' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['G' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
+    #                 planilha['G' + str(linha)] = item.custo_produto
+    #                 planilha['H' + str(linha)] = item.produto.tempo_de_instalacao
+    #                 planilha['I' + str(linha)] = ''
+    #                 planilha['J' + str(linha)] = item.custo_servico
+    #                 planilha['J' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['K' + str(linha)] = item.quantidade
+    #                 planilha['L' + str(linha)] = item.custo_venda
+    #                 planilha['L' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #                 planilha['M' + str(linha)] = '= K' + str(linha) + '*L' + str(linha)
+    #                 planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #
+    #                 planilha['A' + str(linha)].font = ft_item
+    #                 planilha['B' + str(linha)].font = ft_item
+    #                 planilha['C' + str(linha)].font = ft_item
+    #                 planilha['D' + str(linha)].font = ft_item
+    #                 planilha['E' + str(linha)].font = ft_item
+    #                 planilha['F' + str(linha)].font = ft_item
+    #                 planilha['G' + str(linha)].font = ft_item
+    #                 planilha['I' + str(linha)].font = ft_item
+    #                 planilha['J' + str(linha)].font = ft_item
+    #                 planilha['K' + str(linha)].font = ft_item
+    #                 planilha['L' + str(linha)].font = ft_item
+    #                 planilha['M' + str(linha)].font = ft_item
+    #
+    #                 planilha['A' + str(linha)].border = borda
+    #                 planilha['B' + str(linha)].border = borda
+    #                 planilha['C' + str(linha)].border = borda
+    #                 planilha['D' + str(linha)].border = borda
+    #                 planilha['E' + str(linha)].border = borda
+    #                 planilha['F' + str(linha)].border = borda
+    #                 planilha['G' + str(linha)].border = borda
+    #                 planilha['H' + str(linha)].border = borda
+    #                 planilha['I' + str(linha)].border = borda
+    #                 planilha['J' + str(linha)].border = borda
+    #                 planilha['K' + str(linha)].border = borda
+    #                 planilha['L' + str(linha)].border = borda
+    #                 planilha['M' + str(linha)].border = borda
+    #
+    #                 planilha['A' + str(linha)].alignment = alinhamento
+    #                 planilha['B' + str(linha)].alignment = alinhamento
+    #                 planilha['C' + str(linha)].alignment = alinhamentoEsquerda
+    #                 planilha['D' + str(linha)].alignment = alinhamento
+    #                 planilha['E' + str(linha)].alignment = alinhamento
+    #                 planilha['F' + str(linha)].alignment = alinhamento
+    #                 planilha['G' + str(linha)].alignment = alinhamento
+    #                 planilha['H' + str(linha)].alignment = alinhamento
+    #                 planilha['I' + str(linha)].alignment = alinhamento
+    #                 planilha['K' + str(linha)].alignment = alinhamento
+    #                 planilha['L' + str(linha)].alignment = alinhamento
+    #                 planilha['M' + str(linha)].alignment = alinhamento
+    #
+    #                 if linha % 2 == 0:
+    #                     planilha['A' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['B' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['C' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['D' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['E' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['F' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['G' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['H' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['I' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['J' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['K' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['L' + str(linha)].fill = preenchimentoCinza
+    #                     planilha['M' + str(linha)].fill = preenchimentoCinza
+    #
+    #                 else:
+    #                     planilha['A' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['B' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['C' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['D' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['E' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['F' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['G' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['H' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['I' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['J' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['K' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['L' + str(linha)].fill = preenchimentoAzulClaro
+    #                     planilha['M' + str(linha)].fill = preenchimentoAzulClaro
+    #
+    #                 linha += 1
+    #             planilha['M' + str(linha)] = '= SUM(M' + str(indice) + ':M' + str(linha - 1) + ')'
+    #             planilha['M' + str(linha)].number_format = '_-R$ * ##,##0.00_-'
+    #             planilha['M' + str(linha)].font = ft_item_negrito
+    #             planilha['M' + str(linha)].alignment = alinhamento
+    #             planilha['M' + str(linha)].fill = preenchimentoVerde
+    #
+    #             linha += 1
+    #
+    #     i += 1
 
     #
     # planilha['A1'].font = ft_cabecalho
@@ -2233,10 +2470,11 @@ def gerar_xlsx(request, id):
     planilha.column_dimensions["F"].width = 15.0
     planilha.column_dimensions["G"].width = 15.0
     planilha.column_dimensions["H"].width = 8.0
-    planilha.column_dimensions["K"].width = 8.0
+    planilha.column_dimensions["K"].width = 15.0
     planilha.column_dimensions["J"].width = 12.0
     planilha.column_dimensions["L"].width = 15.0
     planilha.column_dimensions["M"].width = 15.0
+    planilha.column_dimensions["N"].width = 17.0
 
     #
     # for item in lista:

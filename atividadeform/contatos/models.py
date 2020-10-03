@@ -70,8 +70,7 @@ class ListaMaterial (models.Model):
 
     @property
     def custo_venda(self):
-        total = ((self.produto.tempo_de_instalacao / 60) * float(self.projeto.valor_infra)) \
-                + (((self.projeto.margem / 100) * float(self.produto.valor_de_compra)) + float(self.produto.valor_de_compra))
+        total = self.custo_servico + self.custo_produto + float(self.produto.valor_de_terceiros)
 
         return total
 
