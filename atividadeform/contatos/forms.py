@@ -29,7 +29,7 @@ class FormularioLista(ModelForm):
 class FormularioFornecedor(ModelForm):
     class Meta:
         model = Fornecedor
-        fields = ['razao_social','telefone']
+        fields = ['razao_social','telefone','cnpj','email','endereco','numero','bairro','cidade']
 
 class FormularioProjeto(ModelForm):
     class Meta:

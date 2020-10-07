@@ -7,6 +7,12 @@ from django.contrib.auth.models import User
 class Fornecedor(models.Model):
     razao_social = models.CharField(max_length = 50)
     telefone = models.IntegerField(blank= True, null= True)
+    endereco = models.CharField(max_length = 100,blank = True, null = True)
+    numero = models.CharField(max_length = 100,blank = True, null = True)
+    bairro = models.CharField(max_length = 100,blank = True, null = True)
+    cidade = models.CharField(max_length = 100,blank = True, null = True)
+    cnpj = models.IntegerField(blank= True, null= True)
+    email = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.razao_social
@@ -46,6 +52,7 @@ class Projeto (models.Model):
     valor_upi = models.DecimalField(default = 0.70,decimal_places=2,max_digits=5)
     valor_upr = models.DecimalField(default = 0.80,decimal_places=2,max_digits=5)
     valor_upe = models.DecimalField(default = 0.90,decimal_places=2,max_digits=5)
+
 
     def __str__(self):
         return str(self.nome_projeto)
