@@ -52,6 +52,7 @@ class Projeto (models.Model):
     valor_upi = models.DecimalField(default = 0.70,decimal_places=2,max_digits=5)
     valor_upr = models.DecimalField(default = 0.80,decimal_places=2,max_digits=5)
     valor_upe = models.DecimalField(default = 0.90,decimal_places=2,max_digits=5)
+    user = models.ForeignKey(User,null = True, on_delete = models.PROTECT)
 
 
     def __str__(self):
