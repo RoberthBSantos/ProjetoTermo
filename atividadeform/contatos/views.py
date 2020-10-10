@@ -185,12 +185,17 @@ def excluir_fornecedor(request, id):
 @login_required
 def nova_lista(request, id):
     form = FormularioLista(request.POST or None)
-    count = 1
+    projeto = Projeto.objects.get(id=id)
+    listas = ListaMaterial.objects.filter(projeto__id=id)
 
     if form.is_valid():
 
-        form.save()
-        vincular_projeto(id)
+        lista = form.save(commit= False)
+        lista.projeto = projeto
+        for item in listas:
+            if item.produto == lista.produto:
+                return redirect('lista/id/', id)
+        lista.save()
 
 
         return redirect('lista/id/', id)
@@ -519,103 +524,7 @@ def gerar_xlsx(request, id):
     planilha.column_dimensions["M"].width = 15.0
     planilha.column_dimensions["N"].width = 17.0
 
-    #
-    # for item in lista:
-    #
-    #     for produto in produtos:
-    #         if item.produto.id == produto.id and produto.grupo != None:
-    #             descricao = produto.descricao.replace(';','')
-    #             descricao = descricao.splitlines()
-    #
-    #             planilha['A' + str(cont)] = produto.fabricante
-    #             planilha['B' + str(cont)] = produto.modelo
-    #             planilha['C' + str(cont)] = produto.nome
-    #             planilha['D' + str(cont)] = produto.unidade
-    #             planilha['E' + str(cont)] = item.pontos
-    #             planilha['F' + str(cont)] = produto.valor
-    #             planilha['F' + str(cont)].number_format ='R$    ##,##0.00'
-    #             planilha['G' + str(cont)].number_format = 'R$   ##,##0.00'
-    #             # planilha['G' + str(cont)] = format(produto.data, "%d/%m/%Y")
-    #             planilha['G' + str(cont)] = item.custo_produto
-    #             planilha['H' + str(cont)] = produto.tempo_de_instalacao
-    #             planilha['I' + str(cont)] = ''
-    #             planilha['J' + str(cont)] = item.custo_servico
-    #             planilha['J' + str(cont)].number_format = 'R$   ##,##0.00'
-    #             planilha['K' + str(cont)] = item.custo_venda
-    #             planilha['K' + str(cont)].number_format = 'R$   ##,##0.00'
-    #
-    #             # planilha['H' + str(cont)].number_format ='#,##0.00'
-    #
-    #
-    #
-    # planilha['A' + str(cont)].font = ft_item
-    # planilha['B' + str(cont)].font = ft_item
-    # planilha['C' + str(cont)].font = ft_item
-    # planilha['D' + str(cont)].font = ft_item
-    # planilha['E' + str(cont)].font = ft_item
-    # planilha['F' + str(cont)].font = ft_item
-    # planilha['G' + str(cont)].font = ft_item
-    # planilha['I' + str(cont)].font = ft_item
-    # planilha['J' + str(cont)].font = ft_item
-    # planilha['K' + str(cont)].font = ft_item
-    # planilha['L' + str(cont)].font = ft_item
-    #
-    # planilha['A' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['B' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['C' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['D' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['E' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['F' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['G' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['H' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['I' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['J' + str(cont)].alignment = alinhamentoEsquerda
-    # planilha['K' + str(cont)].alignment = alinhamentoEsquerda
 
-    #             if cont % 2 == 0:
-    #                 planilha['A' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['B' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['C' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['D' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['E' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['F' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['G' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['H' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['I' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['J' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['K' + str(cont)].fill = preenchimentoCinza
-    #                 planilha['L' + str(cont)].fill = preenchimentoCinza
-    #             else:
-    #                 planilha['A' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['B' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['C' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['D' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['E' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['F' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['G' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['H' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['I' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['J' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['K' + str(cont)].fill = preenchimentoAzulClaro
-    #                 planilha['L' + str(cont)].fill = preenchimentoAzulClaro
-    #         else:
-    #             pass
-    #     cont += 1
-    #
-    # planilha['H'+str(cont)] = '= SUM(H2:H' + str(cont-1) +')'
-    # planilha['H' + str(cont)].number_format = '#,##0.00'
-    # planilha['H' + str(cont)].font = ft_item_negrito
-    # planilha['H' + str(cont)].alignment = alinhamento
-    # planilha['H' + str(cont)].fill = preenchimentoVerde
-    #
-    # planilha['A' + str(cont)].border = bordaSuperior
-    # planilha['B' + str(cont)].border = bordaSuperior
-    # planilha['C' + str(cont)].border = bordaSuperior
-    # planilha['D' + str(cont)].border = bordaSuperior
-    # planilha['E' + str(cont)].border = bordaSuperior
-    # planilha['F' + str(cont)].border = bordaSuperior
-    # planilha['G' + str(cont)].border = bordaSuperior
-    # planilha['H' + str(cont)].border = bordaSuperior
 
     wb.save('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     gerar_planilha(nome_doc)
@@ -797,15 +706,13 @@ def listar_projetos(request):
 
 
 def vincular_projeto(id):
+
     projeto = Projeto.objects.get(id=id)
     lista = ListaMaterial.objects.get(projeto=None)
     lista.projeto = projeto
     lista.save()
 
-def vincular_user(id):
-    projeto = Projeto.objects.get(id=id)
-    projeto.user = get_perfil_logado
-    projeto.save()
+
 def deletar_projeto(request, id):
     projeto = get_object_or_404(Projeto, id=id)
 
