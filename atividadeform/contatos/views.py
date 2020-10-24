@@ -12,6 +12,7 @@ import os
 from django.conf import settings
 from django.core.files import File
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 
 @login_required
@@ -160,6 +161,7 @@ def excluir_prod_lista(request, id):
 @login_required
 def novo_fornecedor(request):
     form = FormularioFornecedor(request.POST or None)
+    convidar_usuario()
 
     if form.is_valid():
         form.save()
@@ -695,12 +697,13 @@ def limpar_lista(request):
 @login_required
 def listar_projetos(request):
     busca = request.GET.get('pesquisa', None)
+    teste = Projeto.objects.all()
 
     if busca:
         # contatos = Contatos.objects.all()
         projetos = {'projetos': Projeto.objects.filter(nome_projeto__icontains=busca,user= request.user)}
     else:
-        projetos = {'projetos': Projeto.objects.filter(user=request.user)}
+        projetos = {'projetos': Projeto.objects.filter(user=request.user) | Projeto.objects.filter(convidados__id=request.user.id)}
 
     return render(request, 'index.html', projetos)
 
@@ -712,7 +715,6 @@ def vincular_projeto(id):
     lista.projeto = projeto
     lista.save()
 
-
 def deletar_projeto(request, id):
     projeto = get_object_or_404(Projeto, id=id)
 
@@ -723,6 +725,10 @@ def deletar_projeto(request, id):
 
     return render(request, 'confirmar_delete_produto.html', {'projeto': projeto})
 
+def convidar_usuario():
+    usuarios = User.objects.all()
+    for usuario  in usuarios:
+        print(usuario.first_name +' '+ usuario.last_name)
 
 @login_required
 def get_perfil_logado(request):

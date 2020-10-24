@@ -52,8 +52,8 @@ class Projeto (models.Model):
     valor_upi = models.DecimalField(default = 0.70,decimal_places=2,max_digits=5)
     valor_upr = models.DecimalField(default = 0.80,decimal_places=2,max_digits=5)
     valor_upe = models.DecimalField(default = 0.90,decimal_places=2,max_digits=5)
-    user = models.ForeignKey(User,null = True, on_delete = models.PROTECT)
-
+    user = models.ForeignKey(User,null = True,related_name='owner', on_delete = models.PROTECT)
+    convidados = models.ManyToManyField(User)
 
     def __str__(self):
         return str(self.nome_projeto)

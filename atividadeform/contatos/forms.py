@@ -34,7 +34,7 @@ class FormularioFornecedor(ModelForm):
 class FormularioProjeto(ModelForm):
     class Meta:
         model = Projeto
-        fields = ['nome_projeto','margem','valor_infra','valor_upi','valor_upr','valor_upe']
+        fields = ['nome_projeto','margem','valor_infra','valor_upi','valor_upr','valor_upe','convidados']
 
 class NameForm(forms.Form):
     project_name = forms.CharField(label='Nome do Projeto', max_length=100)
