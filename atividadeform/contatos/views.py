@@ -530,6 +530,7 @@ def gerar_xlsx(request, id):
 
     wb.save('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     gerar_planilha(nome_doc)
+    os.remove('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     return redirect('listar_downloads')
 
 
@@ -594,6 +595,7 @@ def gerar_docx(request, id):
 
     doc.save('documents/documents/media/Anexos ' + nome_doc + '.docx')
     gerar_doc(nome_doc)
+    os.remove('documents/documents/media/Anexos ' + nome_doc + '.docx')
 
     return redirect('listar_downloads')
 
@@ -676,10 +678,10 @@ def get_name_xlsx(request):
 @login_required
 def delete_doc(request, id):
     documento = get_object_or_404(DocFiles, id=id)
-    try:
-        os.remove('documents/documents/media/' + documento.title + '.docx')
-    except:
-        os.remove('documents/documents/media/' + documento.title + '.xlsx')
+    # try:
+    #     os.remove('documents/documents/media/' + documento.title + '.docx')
+    # except:
+    #     os.remove('documents/documents/media/' + documento.title + '.xlsx')
     os.remove(str(documento.docupload))
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')
@@ -700,7 +702,7 @@ def listar_projetos(request):
     teste = Projeto.objects.all()
 
     if busca:
-        # contatos = Contatos.objects.all()
+        
         projetos = {'projetos': Projeto.objects.filter(nome_projeto__icontains=busca,user= request.user)}
     else:
         projetos = {'projetos': Projeto.objects.filter(user=request.user) | Projeto.objects.filter(convidados__id=request.user.id)}
