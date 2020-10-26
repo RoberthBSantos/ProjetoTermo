@@ -19,6 +19,8 @@ from contatos.views import *
 from django.conf.urls.static import static
 from django.conf.urls import url
 from django.views.static import serve
+from usuarios.views import RegistrarUsuarioView
+from django.contrib.auth import views as v
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +28,7 @@ urlpatterns = [
     path('',listar_projetos, name= 'lista_projetos'),
     path('novo_projeto', novo_projeto, name= 'novo_projeto'),
     path('adicionar', novo_contato, name = "adicionar_contato"),
+    path('atualizar_projeto/<int:id>', atualizar_projeto, name = 'atualizar_projeto'),
     path('atualizar/<int:id>/', atualizar_contato, name = "atualizar_contato"),
     path('exluir/<int:id>)/', excluir_produto, name = "excluir_produto"),
     path('lista/<int:id>', nova_lista, name = 'lista/id/'),
@@ -45,6 +48,11 @@ urlpatterns = [
     path('formulario_xlsx/<int:id>',get_name_xlsx,name = 'formulario_xlsx'),
     path('delete_doc/<int:id>', delete_doc, name = 'delete_doc'),
     path('limpar_lista',limpar_lista, name = 'limpar_lista'),
+    path('deletar_projeto/<int:id>',deletar_projeto, name = 'deletar_projeto'),
+    path('registrar/', RegistrarUsuarioView, name="registrar"),
+    path('login/',v.LoginView.as_view(template_name='login.html'), name = 'login'),
+    path('logout/', v.LogoutView.as_view(template_name='login.html'), name='logout')
+
 ]
 
 if settings.DEBUG:

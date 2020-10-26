@@ -1,0 +1,34 @@
+<!-- connectedin/usuarios/templates/login.html -->
+{% extends "base_usuario.html" %}
+{% load bootstrap %}
+{% block main %}
+<form class="form-signin" role="form"
+action="{% url 'login' %}" method="post">
+{% csrf_token %}
+<h2 class="form-signin-heading">Login</h2>
+<input id="id_username" name="username"
+
+class="form-control" placeholder="Usuário" required autofocus>
+
+<input type="password" id="id_password" name="password"
+class="form-control" placeholder="Senha" required>
+
+<button class="btn btn-lg btn-primary btn-block"
+type="submit" value="Login">Login</button>
+
+{% if form.errors %}
+<div class="alert alert-danger">
+<button type="button" class="close"
+
+data-dismiss="alert" aria-hidden="true">×</button>
+
+Por favor, verifique o Usuario e/ou Senha informados
+</div >
+{% endif %}
+    <div style='text-align:center'>
+
+        <a href="{% url 'registrar' %}">registre-se</a>
+    </div>
+
+</form>
+{% endblock %}

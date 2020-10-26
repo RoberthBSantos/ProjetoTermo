@@ -27,7 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.19.246',
                  '127.0.0.1',
-                 '10.101.40.55']
+                 '10.101.40.55',
+                 '192.168.19.5']
 
 
 # Application definition
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrapform',
     'contatos',
+    'usuarios',
 ]
 
 MIDDLEWARE = [
@@ -109,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Etc/GMT+3'
 
 USE_I18N = True
 
@@ -127,3 +129,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS=[os.path.join(BASE_DIR,"static")]
 MEDIA_URL="/media/"
 MEDIA_ROOT=os.path.join(BASE_DIR,'documents')
+
+LOGIN_URL='/login/'
+LOGOUT_URL='/logout/'
+LOGIN_REDIRECT_URL='/'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
