@@ -29,7 +29,7 @@ class Produtos(models.Model):
     modelo = models.CharField(max_length=50,blank=True,default="")
     unidade = models.CharField(max_length=15,blank=True,default='UND')
     grupo = models.ForeignKey(Grupos,null=True,blank=True, on_delete= models.PROTECT)
-    descricao = models.TextField(null= True,blank= True, max_length=2000, default="")
+    descricao = models.TextField(null= True,blank= True, default="")
     valor_de_compra = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     fornecedor = models.ForeignKey(Fornecedor,null=True, blank=True, on_delete = models.PROTECT)
     tempo_de_instalacao = models.IntegerField(blank=True,default=1)
@@ -103,7 +103,7 @@ class ListaMaterial (models.Model):
         return self.produto.nome
 
 class DocFiles(models.Model):
-    docupload= models.FileField(max_length=500)
+    docupload= models.CharField(max_length=500,null = True)
     title=models.CharField(max_length=50)
     data = models.DateTimeField(auto_now=True)
 

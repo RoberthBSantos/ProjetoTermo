@@ -51,7 +51,8 @@ urlpatterns = [
     path('deletar_projeto/<int:id>',deletar_projeto, name = 'deletar_projeto'),
     path('registrar/', RegistrarUsuarioView, name="registrar"),
     path('login/',v.LoginView.as_view(template_name='login.html'), name = 'login'),
-    path('logout/', v.LogoutView.as_view(template_name='login.html'), name='logout')
+    path('logout/', v.LogoutView.as_view(template_name='login.html'), name='logout'),
+    path('download/<int:id>',download_doc,name="download")
 
 ]
 

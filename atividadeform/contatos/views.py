@@ -3,6 +3,7 @@ from .models import Produtos, ListaMaterial, Fornecedor, Grupos, DocFiles, Proje
 from .forms import FormularioContato, FormularioLista, FormularioFornecedor, NameForm, FormularioProjeto
 import openpyxl
 from openpyxl.styles import Font, colors, Alignment, Border, Side, PatternFill
+from io import BytesIO
 import docx
 from django.core.paginator import Paginator
 from docx.shared import Pt, RGBColor
@@ -13,7 +14,9 @@ from django.conf import settings
 from django.core.files import File
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-
+import boto3
+from boto3 import Session
+import s3transfer
 
 @login_required
 def listar_contatos(request):
@@ -249,6 +252,7 @@ def gerar_xlsx(request, id):
     produtos = Produtos.objects.order_by('nome')
     lista = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='INFRAESTRUTURA')
     grupos = Grupos.objects.all()
+    s3 = boto3.resource('s3')
 
     ##################  LISTAS DE MATERIAIS SEPARADAS POR GRUPO #########################
 
@@ -527,10 +531,13 @@ def gerar_xlsx(request, id):
     planilha.column_dimensions["N"].width = 17.0
 
 
-
-    wb.save('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
+    with BytesIO() as fileobj:
+        wb.save(fileobj)
+        fileobj.seek(0)
+        s3.Bucket('nucleo-bot').put_object(Key=nome_doc+'.xlsx', Body=fileobj)
+    # wb.save('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     gerar_planilha(nome_doc)
-    os.remove('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
+    # os.remove('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     return redirect('listar_downloads')
 
 
@@ -541,6 +548,10 @@ def gerar_docx(request, id):
     lista = ListaMaterial.objects.filter(projeto=id).order_by('produto__nome')
     grupos = Grupos.objects.all()
     cgrupo = 1
+
+    s3 = boto3.resource('s3')
+    for bucket in s3.buckets.all():
+        print(bucket.name)
 
     doc = docx.Document()
 
@@ -593,9 +604,15 @@ def gerar_docx(request, id):
                             )
             cgrupo += 1
 
-    doc.save('documents/documents/media/Anexos ' + nome_doc + '.docx')
+
+    with BytesIO() as fileobj:
+        doc.save(fileobj)
+        fileobj.seek(0)
+        s3.Bucket('nucleo-bot').put_object(Key=nome_doc+'.docx', Body=fileobj)
+
+    # doc.save('documents/documents/media/Anexos ' + nome_doc + '.docx')
     gerar_doc(nome_doc)
-    os.remove('documents/documents/media/Anexos ' + nome_doc + '.docx')
+    # os.remove('documents/documents/media/Anexos ' + nome_doc + '.docx')
 
     return redirect('listar_downloads')
 
@@ -613,34 +630,98 @@ def group_check(grupo):
 
 
 def gerar_doc(nome):
-    f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Anexos ' + nome + '.docx'), 'rb'))
-    doc = DocFiles()
-    doc.docupload = f
 
-    doc.title = 'Anexos ' + nome
+    ACCESS_KEY = "AKIAVFLNOFOFSPIFDPUJ"
+    SECRET_KEY = "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"
+    REGION_NAME = "us-east-1"
+    BUCKET_NAME = "nucleo-bot"
+
+    ses = Session(aws_access_key_id=ACCESS_KEY,
+                  aws_secret_access_key=SECRET_KEY,
+                  region_name=REGION_NAME)
+    client = ses.client('s3')
+
+    key = nome + ".docx"
+
+    url = client.generate_presigned_url(
+        ClientMethod='get_object',
+        Params={
+            'Bucket': BUCKET_NAME,
+            'Key': key,
+            'ResponseContentDisposition': 'attachment'
+        },
+        ExpiresIn=180
+    )
+
+
+
+    # s3 = boto3.client('s3')
+    # print (nome)
+    doc = DocFiles()
+    #
+    # key = nome+".docx"
+    #
+    # url = s3.generate_presigned_url(
+    #     ClientMethod='get_object',
+    #     Params={
+    #         'Bucket': 'nucleo-bot',
+    #         'Key': key,
+    #         'ResponseContentDisposition': 'attachment'
+    #     },
+    #     ExpiresIn=180
+    # )
+
+    print(url)
+
+    doc.docupload = url
+    doc.title = nome
 
     doc.save(nome)
-
 
 def gerar_planilha(nome):
-    f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
-    doc = DocFiles()
-    doc.docupload = f
+    # f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
+    # doc = DocFiles()
+    # doc.docupload = f
+    #
+    # doc.title = 'Planilha ' + nome
+    #
+    # doc.save(nome)
 
-    doc.title = 'Planilha ' + nome
+    s3 = boto3.client('s3')
+    print (nome)
+    doc = DocFiles()
+
+    key = nome + ".xlsx"
+
+    url = s3.generate_presigned_url(
+        ClientMethod='get_object',
+        Params={
+            'Bucket': 'nucleo-bot',
+            'Key': key,
+            'ResponseContentDisposition': 'attachment'
+        },
+        ExpiresIn=180
+    )
+
+    print(url)
+
+    doc.docupload = url
+    doc.title = nome + ".xlsx"
 
     doc.save(nome)
 
 
-def download_doc(path):
-    file_path = os.path.join(settings.MEDIA_ROOT, path)
-    if os.path.exists(file_path):
-        with open(file_path, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="aplication/docupload")
-            response['Content-Disposition'] = 'inline;  filename=' + os.path.basename(file_path)
-            return response
-        raise Http404
+def download_doc(id):
+    # file_path = os.path.join(settings.MEDIA_ROOT, path)
+    # if os.path.exists(file_path):
+    #     with open(file_path, 'rb') as fh:
+    #         response = HttpResponse(fh.read(), content_type="aplication/docupload")
+    #         response['Content-Disposition'] = 'inline;  filename=' + os.path.basename(file_path)
+    #         return response
+    #     raise Http404
+    documento = get_object_or_404(DocFiles, id=id)
 
+    return raisehttpresponse('listar_downloads')
 
 def listar_download(request):
     files = {'files': DocFiles.objects.all()}
@@ -677,12 +758,12 @@ def get_name_xlsx(request):
 
 @login_required
 def delete_doc(request, id):
-    documento = get_object_or_404(DocFiles, id=id)
+    # documento = get_object_or_404(DocFiles, id=id)
     # try:
     #     os.remove('documents/documents/media/' + documento.title + '.docx')
     # except:
     #     os.remove('documents/documents/media/' + documento.title + '.xlsx')
-    os.remove(str(documento.docupload))
+    
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')
 
@@ -735,3 +816,19 @@ def convidar_usuario():
 @login_required
 def get_perfil_logado(request):
     return request.user.perfil
+
+
+def get_object(bucket, object_key):
+    """
+    Gets an object from a bucket.
+
+    Usage is shown in usage_demo at the end of this module.
+
+    :param bucket: The bucket that contains the object.
+    :param object_key: The key of the object to retrieve.
+    :return: The object data in bytes.
+    """
+
+    body = bucket.Object(object_key).get()['Body'].read()
+
+    return body
