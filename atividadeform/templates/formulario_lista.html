@@ -7,7 +7,7 @@
 <!--    <input type="text" class="form-control" id="documento" name="documento" placeholder="Nome do Projeto">-->
 <form method="POST">
     {% csrf_token %}
-    {{ form|bootstrap }}
+    {{ form | bootstrap }}
     <div class="alert alert-info clearfix">
         <button type="submit" class="btn btn-success pull-right">Adicionar a lista</button>
         <a href="{% url 'gerar_documento' projeto.id %}" class="btn btn-primary">Gerar arquivo xlsx</a>
@@ -16,6 +16,13 @@
         <button type="button" class="btn btn-danger" onclick="confirmarDelete()">Limpar Lista</button>
 
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.js-example-basic-single').select2();
+        });
+    </script>
+
 
 </form>
 <br>

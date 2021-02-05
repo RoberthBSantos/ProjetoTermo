@@ -1,40 +1,52 @@
-from django.forms import ModelForm, DateInput
+from django.forms import ModelForm, DateInput, Select
 from django import forms
 from .models import Produtos, ListaMaterial, Fornecedor, Projeto
 
 
 class FormularioContato(ModelForm):
     valor_de_compra = forms.DecimalField(max_digits=8, decimal_places=2, localize=True)
+
     class Meta:
         model = Produtos
-        fields = ['nome','fabricante','fornecedor','modelo','unidade','tempo_de_instalacao','tempo_de_sup',
-                  'grupo','descricao','valor_de_compra','valor_de_terceiros','data']
+        fields = ['nome', 'fabricante', 'fornecedor', 'modelo', 'unidade', 'tempo_de_instalacao', 'tempo_de_sup',
+                  'grupo', 'descricao', 'valor_de_compra', 'valor_de_terceiros', 'data']
         labels = {
 
-            'tempo_de_instalacao' : 'Tempo de instalação ∆T INF.',
-            'tempo_de_sup' : 'Tempo de suporte ∆T SUP.',
-            'descricao' : 'Descricao (Que vai para o documento do termo.)',
+            'tempo_de_instalacao': 'Tempo de instalação ∆T INF.',
+            'tempo_de_sup': 'Tempo de suporte ∆T SUP.',
+            'descricao': 'Descricao (Que vai para o documento do termo.)',
             'data': 'Data da cotação'
         }
 
         widgets = {
-            'data': DateInput(attrs={'type': 'date',})
+            'data': DateInput(attrs={'type': 'date', })
         }
+
 
 class FormularioLista(ModelForm):
     class Meta:
         model = ListaMaterial
-        fields = ['produto','quantidade']
+        fields = ['produto', 'quantidade']
+        widgets = {'produto': Select(attrs={
+            'class': 'js-example-basic-single',
+            'name': 'state'
+        })}
+
+    class Media:
+        js = 'js/lista_produtos.js'
+
 
 class FormularioFornecedor(ModelForm):
     class Meta:
         model = Fornecedor
-        fields = ['razao_social','telefone','cnpj','email','endereco','numero','bairro','cidade']
+        fields = ['razao_social', 'telefone', 'cnpj', 'email', 'endereco', 'numero', 'bairro', 'cidade']
+
 
 class FormularioProjeto(ModelForm):
     class Meta:
         model = Projeto
-        fields = ['nome_projeto','margem','valor_infra','valor_upi','valor_upr','valor_upe','convidados']
+        fields = ['nome_projeto', 'margem', 'valor_infra', 'valor_upi', 'valor_upr', 'valor_upe', 'convidados']
+
 
 class NameForm(forms.Form):
     project_name = forms.CharField(label='Nome do Projeto', max_length=100)
