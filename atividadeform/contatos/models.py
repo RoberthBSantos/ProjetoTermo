@@ -13,7 +13,7 @@ class Fornecedor(models.Model):
     bairro = models.CharField(max_length=100, blank=True, null=True)
     cidade = models.CharField(max_length=100, blank=True, null=True)
     cnpj = models.IntegerField(blank=True, null=True)
-    email = models.IntegerField(blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
 
     def __str__(self):
         return self.razao_social
@@ -38,14 +38,20 @@ class Produtos(models.Model):
     tempo_de_instalacao = models.IntegerField(blank=True, default=1)
     tempo_de_sup = models.IntegerField(blank=True, default=0)
     valor_de_terceiros = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    sub_item = models.ManyToManyField('self', null=True,blank=True)
     data = models.DateTimeField()
 
     class Meta:
         ordering = ('nome',)
 
     def __str__(self):
-        return self.nome + ' ' + self.fabricante
+        return self.nome + ' ' + self.modelo + ' ' + self.fabricante
 
+class TipoProjeto(models.Model):
+    nome = models.CharField(max_length=200)
+
+    def __str__(self):
+        return  self.nome
 
 class Projeto(models.Model):
     nome_projeto = models.CharField(max_length=300)
@@ -56,6 +62,7 @@ class Projeto(models.Model):
     valor_upr = models.DecimalField(default=0.80, decimal_places=2, max_digits=5)
     valor_upe = models.DecimalField(default=0.90, decimal_places=2, max_digits=5)
     user = models.ForeignKey(User, null=True, related_name='owner', on_delete=models.PROTECT)
+    tipo_de_projeto = models.ForeignKey(TipoProjeto,null=True,on_delete=models.PROTECT)
     convidados = models.ManyToManyField(User)
 
     def __str__(self):
@@ -115,6 +122,8 @@ class DocFiles(models.Model):
 
     def __str__(self):
         return self.title
+
+
 
 
 class Perfil(models.Model):

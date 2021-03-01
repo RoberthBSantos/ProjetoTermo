@@ -9,7 +9,7 @@ class FormularioContato(ModelForm):
     class Meta:
         model = Produtos
         fields = ['nome', 'fabricante', 'fornecedor', 'modelo', 'unidade', 'tempo_de_instalacao', 'tempo_de_sup',
-                  'grupo', 'descricao', 'valor_de_compra', 'valor_de_terceiros', 'data']
+                  'grupo', 'descricao', 'valor_de_compra', 'valor_de_terceiros', 'data','sub_item']
         labels = {
 
             'tempo_de_instalacao': 'Tempo de instalação ∆T INF.',
@@ -45,7 +45,7 @@ class FormularioFornecedor(ModelForm):
 class FormularioProjeto(ModelForm):
     class Meta:
         model = Projeto
-        fields = ['nome_projeto', 'margem', 'valor_infra', 'valor_upi', 'valor_upr', 'valor_upe', 'convidados']
+        fields = ['nome_projeto','tipo_de_projeto', 'margem', 'valor_infra','valor_sup', 'valor_upi', 'valor_upr', 'valor_upe', 'convidados']
 
 
 class NameForm(forms.Form):
