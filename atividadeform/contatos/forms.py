@@ -1,5 +1,6 @@
-from django.forms import ModelForm, DateInput, Select
+from django.forms import ModelForm, DateInput, Select, TextInput, NumberInput
 from django import forms
+
 from .models import Produtos, ListaMaterial, Fornecedor, Projeto
 
 
@@ -40,7 +41,14 @@ class FormularioFornecedor(ModelForm):
     class Meta:
         model = Fornecedor
         fields = ['razao_social', 'telefone', 'cnpj', 'email', 'endereco', 'numero', 'bairro', 'cidade']
-
+        widgets = {'telefone': TextInput(attrs={
+                'class': 'form-control',
+                'onkeypress': '$(this).mask(\'(00) 0000-00009\')'
+            }),
+        'cnpj': TextInput(attrs={
+                'class': 'form-control',
+                'onkeypress': '$(this).mask(\'00.000.000/0000-00\')'
+        })}
 
 class FormularioProjeto(ModelForm):
     class Meta:

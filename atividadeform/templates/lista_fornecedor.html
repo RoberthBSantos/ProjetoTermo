@@ -32,7 +32,7 @@
         {% for fornecedor in fornecedores %}
 
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a href="#" class="list-group-item list-group-item-action"><b>{{ fornecedor.razao_social }}</b>, {{ fornecedor.telefone }}</a>
+            <a href="#" class="list-group-item list-group-item-action"><b>{{ fornecedor.razao_social }}</b>, {{ fornecedor.telefone }} </a>
 
             <a href="{% url 'atualizar_fornecedor' fornecedor.id %}" type="button" class="btn btn-outline-info" >
                 <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

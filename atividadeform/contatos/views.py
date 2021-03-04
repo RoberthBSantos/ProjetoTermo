@@ -38,7 +38,7 @@ def listar_contatos(request):
 
     produtos = paginator.get_page(page)
 
-    return render(request, 'contatos.html', {'contatos': produtos_list})
+    return render(request, 'contatos.html', {'contatos': produtos})
 
 
 @login_required
