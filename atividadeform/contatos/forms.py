@@ -20,7 +20,12 @@ class FormularioContato(ModelForm):
         }
 
         widgets = {
-            'data': DateInput(attrs={'type': 'date', })
+            'data': DateInput(attrs={'type': 'date', }),
+            'sub_item': Select(attrs={
+                'class': 'select-com-pesquisa',
+                'name': 'states[]',
+                'multiple': 'multiple'
+            })
         }
 
 
@@ -29,7 +34,7 @@ class FormularioLista(ModelForm):
         model = ListaMaterial
         fields = ['produto', 'quantidade']
         widgets = {'produto': Select(attrs={
-            'class': 'js-example-basic-single',
+            'class': 'select-com-pesquisa',
             'name': 'state'
         })}
 
@@ -41,14 +46,17 @@ class FormularioFornecedor(ModelForm):
     class Meta:
         model = Fornecedor
         fields = ['razao_social', 'telefone', 'cnpj', 'email', 'endereco', 'numero', 'bairro', 'cidade']
-        widgets = {'telefone': TextInput(attrs={
+        widgets = {
+            'telefone': TextInput(attrs={
                 'class': 'form-control',
-                'onkeypress': '$(this).mask(\'(00) 0000-00009\')'
+                'minlength': '15',
+                'onkeypress': '$(this).mask(\'(00) 00000-0009\')'
             }),
-        'cnpj': TextInput(attrs={
+            'cnpj': TextInput(attrs={
                 'class': 'form-control',
-                'onkeypress': '$(this).mask(\'00.000.000/0000-00\')'
-        })}
+                'onkeypress': '$(this).mask(\'00.000.000/0000-00\')',
+                'minlength': '18'
+            })}
 
 class FormularioProjeto(ModelForm):
     class Meta:

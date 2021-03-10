@@ -7,12 +7,12 @@ from django.contrib.auth.models import User
 
 class Fornecedor(models.Model):
     razao_social = models.CharField(max_length=50)
-    telefone = models.IntegerField(blank=True, null=True)
+    telefone = models.CharField(max_length=15, blank=False, null=False)
     endereco = models.CharField(max_length=100, blank=True, null=True)
     numero = models.CharField(max_length=100, blank=True, null=True)
     bairro = models.CharField(max_length=100, blank=True, null=True)
     cidade = models.CharField(max_length=100, blank=True, null=True)
-    cnpj = models.IntegerField(blank=True, null=True)
+    cnpj = models.CharField(max_length=18, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
 
     def __str__(self):
