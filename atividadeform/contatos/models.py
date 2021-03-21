@@ -50,7 +50,8 @@ class Produtos(models.Model):
 class SubItem(models.Model):
     item = models.ForeignKey(Produtos,blank= True,related_name='produto', null= True, on_delete= models.CASCADE)
     sub = models.ForeignKey(Produtos,blank= True, null= True, on_delete= models.CASCADE)
-    quantidade = models.IntegerField
+    quantidade = models.IntegerField(blank=True, default=0)
+
 
 class TipoProjeto(models.Model):
     nome = models.CharField(max_length=200)

@@ -1,8 +1,8 @@
 from django.contrib import messages
 from django.db.models import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Produtos, ListaMaterial, Fornecedor, Grupos, DocFiles, Projeto
-from .forms import FormularioContato, FormularioLista, FormularioFornecedor, NameForm, FormularioProjeto
+from .models import Produtos, ListaMaterial, Fornecedor, Grupos, DocFiles, Projeto, SubItem
+from .forms import FormularioContato, FormularioLista, FormularioFornecedor, NameForm, FormularioProjeto, FormularioSubitem
 import openpyxl
 from openpyxl.styles import Font, colors, Alignment, Border, Side, PatternFill
 from io import BytesIO
@@ -237,6 +237,25 @@ def nova_lista(request, id):
                                                      'servicos_rede': servicos_rede,
                                                      'rede_de_dados_e_energia': rede_de_dados_e_energia,
                                                      'seguranca': seguranca, 'projeto': projeto})
+
+
+@login_required
+def novo_subitem(request, id):
+    form = FormularioSubitem(request.POST or None)
+    produto = Produtos.objects.get(id=id)
+    lista_subitem = SubItem.objects.filter(produto__id=id)
+
+    if form.is_valid():
+        subitem = form.save(commit=False)
+        subitem.item = produto
+        for item in lista_subitem:
+            if item.produto == subitem.item:
+                return redirect('adicionar_subitem/id/', id)
+
+        subitem.save()
+        return redirect('adicionar_subitem/id/', id)
+
+    return render(request, 'formulario_subitem.html', {'form': form, 'lista_subitem': lista_subitem})
 
 
 @login_required
