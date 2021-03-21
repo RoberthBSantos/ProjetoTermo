@@ -10,7 +10,7 @@ class FormularioContato(ModelForm):
     class Meta:
         model = Produtos
         fields = ['nome', 'fabricante', 'fornecedor', 'modelo', 'unidade', 'tempo_de_instalacao', 'tempo_de_sup',
-                  'grupo', 'descricao', 'valor_de_compra', 'valor_de_terceiros', 'data','sub_item']
+                  'grupo', 'descricao', 'valor_de_compra', 'valor_de_terceiros', 'data']
         labels = {
 
             'tempo_de_instalacao': 'Tempo de instalação ∆T INF.',
@@ -20,12 +20,9 @@ class FormularioContato(ModelForm):
         }
 
         widgets = {
-            'data': DateInput(attrs={'type': 'date', }),
-            'sub_item': Select(attrs={
-                'class': 'select-com-pesquisa',
-                'name': 'states[]',
-                'multiple': 'multiple'
-            })
+            'data': DateInput(attrs={'type': 'date', })
+
+
         }
 
 

@@ -38,7 +38,6 @@ class Produtos(models.Model):
     tempo_de_instalacao = models.IntegerField(blank=True, default=1)
     tempo_de_sup = models.IntegerField(blank=True, default=0)
     valor_de_terceiros = models.DecimalField(max_digits=8, decimal_places=2, default=0)
-    sub_item = models.ManyToManyField('self', null=True,blank=True)
     data = models.DateTimeField()
 
     class Meta:
@@ -46,6 +45,12 @@ class Produtos(models.Model):
 
     def __str__(self):
         return self.nome + ' ' + self.modelo + ' ' + self.fabricante
+
+
+class SubItem(models.Model):
+    item = models.ForeignKey(Produtos,blank= True,related_name='produto', null= True, on_delete= models.CASCADE)
+    sub = models.ForeignKey(Produtos,blank= True, null= True, on_delete= models.CASCADE)
+    quantidade = models.IntegerField
 
 class TipoProjeto(models.Model):
     nome = models.CharField(max_length=200)
@@ -138,3 +143,4 @@ class Perfil(models.Model):
     @property
     def email(self):
         return self.usuario.email
+
