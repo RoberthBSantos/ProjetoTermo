@@ -82,6 +82,7 @@ class ListaMaterial(models.Model):
 
     @property
     def custo_produto(self):
+
         total = ((self.projeto.margem / 100) * float(self.produto.valor_de_compra)) + float(
             self.produto.valor_de_compra)
 

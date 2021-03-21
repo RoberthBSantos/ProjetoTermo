@@ -32,7 +32,7 @@ class FormularioSubitem(ModelForm):
         widgets = {
             'sub': Select(attrs={
                 'class': 'select-com-pesquisa',
-                'name': 'state[]',
+                'name': 'state',
             })
         }
 

@@ -40,4 +40,13 @@
 
     {% endfor %}
 
+    <script>
+        $(document).ready(function() {
+            $('.select-com-pesquisa').select2();
+        });
+        $('#myModal').on('shown.bs.modal', function () {
+          $('#myInput').trigger('focus')
+        })
+    </script>
+
 {% endblock %}
