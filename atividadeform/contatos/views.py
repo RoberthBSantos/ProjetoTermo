@@ -243,19 +243,15 @@ def nova_lista(request, id):
 def novo_subitem(request, id):
     form = FormularioSubitem(request.POST or None)
     produto = Produtos.objects.get(id=id)
-    lista_subitem = SubItem.objects.filter(produto__id=id)
+    lista_subitem = SubItem.objects.filter(item__id=id)
 
     if form.is_valid():
         subitem = form.save(commit=False)
         subitem.item = produto
-        for item in lista_subitem:
-            if item.produto == subitem.item:
-                return redirect('adicionar_subitem/id/', id)
-
         subitem.save()
-        return redirect('adicionar_subitem/id/', id)
+        return redirect('adicionar_subitem', id)
 
-    return render(request, 'formulario_subitem.html', {'form': form, 'lista_subitem': lista_subitem})
+    return render(request, 'formulario_subitem.html', {'form': form, 'lista_subitem': lista_subitem, 'produto': produto})
 
 
 @login_required
