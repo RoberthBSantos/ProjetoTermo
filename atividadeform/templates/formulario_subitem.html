@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load bootstrap %}
+
+{%block title%} Formulario Subitem {%endblock%}
+{% block main %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-outline-success">Salvar</button>
+        <button onclick='history.go(-1)' type="button" class="btn btn-outline-danger">Cancelar</button>
+    </form>
+
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.forms import ModelForm, DateInput, Select, TextInput, NumberInput
 from django import forms
 
-from .models import Produtos, ListaMaterial, Fornecedor, Projeto
+from .models import Produtos, ListaMaterial, Fornecedor, Projeto, SubItem
 
 
 class FormularioContato(ModelForm):
@@ -22,7 +22,18 @@ class FormularioContato(ModelForm):
         widgets = {
             'data': DateInput(attrs={'type': 'date', })
 
+        }
 
+
+class FormularioSubitem(ModelForm):
+    class Meta:
+        model = SubItem
+        fields = ['sub', 'quantidade']
+        widgets = {
+            'sub': Select(attrs={
+                'class': 'select-com-pesquisa',
+                'name': 'state[]',
+            })
         }
 
 
@@ -55,10 +66,12 @@ class FormularioFornecedor(ModelForm):
                 'minlength': '18'
             })}
 
+
 class FormularioProjeto(ModelForm):
     class Meta:
         model = Projeto
-        fields = ['nome_projeto','tipo_de_projeto', 'margem', 'valor_infra','valor_sup', 'valor_upi', 'valor_upr', 'valor_upe', 'convidados']
+        fields = ['nome_projeto', 'tipo_de_projeto', 'margem', 'valor_infra', 'valor_sup', 'valor_upi', 'valor_upr',
+                  'valor_upe', 'convidados']
 
 
 class NameForm(forms.Form):
