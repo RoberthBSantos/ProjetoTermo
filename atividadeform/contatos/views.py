@@ -1,6 +1,8 @@
+from django.contrib import messages
+from django.db.models import ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Produtos, ListaMaterial, Fornecedor, Grupos, DocFiles, Projeto
-from .forms import FormularioContato, FormularioLista, FormularioFornecedor, NameForm, FormularioProjeto
+from .models import Produtos, ListaMaterial, Fornecedor, Grupos, DocFiles, Projeto, SubItem
+from .forms import FormularioContato, FormularioLista, FormularioFornecedor, NameForm, FormularioProjeto, FormularioSubitem
 import openpyxl
 from openpyxl.styles import Font, colors, Alignment, Border, Side, PatternFill
 from io import BytesIO
@@ -17,6 +19,7 @@ from django.contrib.auth.models import User
 import boto3
 from boto3 import Session
 import s3transfer
+
 
 @login_required
 def listar_contatos(request):
@@ -35,15 +38,15 @@ def listar_contatos(request):
 
     produtos = paginator.get_page(page)
 
-    return render(request, 'contatos.html', {'contatos': produtos_list})
+    return render(request, 'contatos.html', {'contatos': produtos})
 
 
 @login_required
 def novo_projeto(request):
     form = FormularioProjeto(request.POST or None)
     if form.is_valid():
-        projeto = form.save(commit= False)
-        projeto.user= request.user
+        projeto = form.save(commit=False)
+        projeto.user = request.user
         projeto.save()
 
         return redirect('lista_projetos')
@@ -183,8 +186,14 @@ def listar_fornecedor(request):
 def excluir_fornecedor(request, id):
     if request.method is not 'POST':
         forn_delete = Fornecedor.objects.filter(id=id)
-        forn_delete.delete()
-        return redirect('lista_fornecedor')
+        # messages.info(request, 'sdfretgrtg')
+        try:
+            forn_delete.delete()
+        except ProtectedError:
+            messages.info(request, 'Não é possivel excluir o fornecedor. Existem produtos vinculado a ele.')
+            return redirect('listar_fornecedor')
+
+        return redirect('listar_fornecedor')
 
 
 @login_required
@@ -195,13 +204,12 @@ def nova_lista(request, id):
 
     if form.is_valid():
 
-        lista = form.save(commit= False)
+        lista = form.save(commit=False)
         lista.projeto = projeto
         for item in listas:
             if item.produto == lista.produto:
                 return redirect('lista/id/', id)
         lista.save()
-
 
         return redirect('lista/id/', id)
 
@@ -232,6 +240,40 @@ def nova_lista(request, id):
 
 
 @login_required
+def novo_subitem(request, id):
+    form = FormularioSubitem(request.POST or None)
+    produto = Produtos.objects.get(id=id)
+    lista_subitem = SubItem.objects.filter(item__id=id)
+
+    if form.is_valid():
+        subitem = form.save(commit=False)
+        subitem.item = produto
+        subitem.save()
+        return redirect('adicionar_subitem', id)
+
+    return render(request, 'formulario_subitem.html', {'form': form, 'lista_subitem': lista_subitem, 'produto': produto})
+
+def atualizar_subitem(request, id):
+    subitem = get_object_or_404(SubItem, pk=id)
+    form = FormularioSubitem(request.POST or None, instance=subitem)
+    produto = Produtos.objects.get(id=subitem.item.id)
+    lista_subitem = SubItem.objects.filter(item__id=subitem.item.id)
+    # projeto = produto.projeto
+    if form.is_valid():
+        form.save()
+        return redirect('adicionar_subitem', subitem.item.id)
+
+    return render(request, 'formulario_subitem.html',{'form': form, 'lista_subitem': lista_subitem, 'produto': produto})
+
+@login_required
+def excluir_subitem(request, id):
+    subitem = get_object_or_404(SubItem, pk=id)
+    produto = Produtos.objects.get(id=subitem.item.id)
+
+    SubItem.objects.filter(id=id).delete()
+    return redirect('adicionar_subitem',produto.id)
+
+@login_required
 def excluir_prod_lista(request, id):
     if request.method is not 'POST':
         id_lista = ListaMaterial.objects.filter(id=id).projeto
@@ -244,8 +286,6 @@ def excluir_prod_lista(request, id):
         return redirect('lista/id/', id_lista)
 
 
-
-
 @login_required
 def gerar_xlsx(request, id):
     nome_doc = Projeto.objects.get(id=id).nome_projeto
@@ -255,7 +295,6 @@ def gerar_xlsx(request, id):
     s3 = boto3.resource('s3')
 
     ##################  LISTAS DE MATERIAIS SEPARADAS POR GRUPO #########################
-
 
     wb = openpyxl.Workbook()
     cont = 2
@@ -318,7 +357,7 @@ def gerar_xlsx(request, id):
         lista_grupo = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome=grupo.nome)
         if len(lista_grupo) > 0:
             planilha.merge_cells('A' + str(linha) + ':N' + str(linha))
-            planilha['A' + str(linha)] = 'GRUPO ' + str(i_grupo) +' '+ grupo.nome
+            planilha['A' + str(linha)] = 'GRUPO ' + str(i_grupo) + ' ' + grupo.nome
             planilha['A' + str(linha)].alignment = alinhamento
             planilha['A' + str(linha)].fill = preenchimentoGrupo
             planilha['A' + str(linha)].font = ft_cabecalho
@@ -515,7 +554,6 @@ def gerar_xlsx(request, id):
             linha += 1
             i_grupo += 1
 
-
     planilha.column_dimensions["A"].width = 20.0
     planilha.column_dimensions["B"].width = 20.0
     planilha.column_dimensions["C"].width = 101.0
@@ -530,11 +568,10 @@ def gerar_xlsx(request, id):
     planilha.column_dimensions["M"].width = 15.0
     planilha.column_dimensions["N"].width = 17.0
 
-
     with BytesIO() as fileobj:
         wb.save(fileobj)
         fileobj.seek(0)
-        s3.Bucket('nucleo-bot').put_object(Key=nome_doc+'.xlsx', Body=fileobj)
+        s3.Bucket('nucleo-bot').put_object(Key=nome_doc + '.xlsx', Body=fileobj)
     # wb.save('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     gerar_planilha(nome_doc)
     # os.remove('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
@@ -604,11 +641,10 @@ def gerar_docx(request, id):
                             )
             cgrupo += 1
 
-
     with BytesIO() as fileobj:
         doc.save(fileobj)
         fileobj.seek(0)
-        s3.Bucket('nucleo-bot').put_object(Key=nome_doc+'.docx', Body=fileobj)
+        s3.Bucket('nucleo-bot').put_object(Key=nome_doc + '.docx', Body=fileobj)
 
     # doc.save('documents/documents/media/Anexos ' + nome_doc + '.docx')
     gerar_doc(nome_doc)
@@ -630,7 +666,6 @@ def group_check(grupo):
 
 
 def gerar_doc(nome):
-
     ACCESS_KEY = "AKIAVFLNOFOFSPIFDPUJ"
     SECRET_KEY = "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"
     REGION_NAME = "us-east-1"
@@ -652,8 +687,6 @@ def gerar_doc(nome):
         },
         ExpiresIn=180
     )
-
-
 
     # s3 = boto3.client('s3')
     # print (nome)
@@ -678,6 +711,7 @@ def gerar_doc(nome):
 
     doc.save(nome)
 
+
 def gerar_planilha(nome):
     # f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
     # doc = DocFiles()
@@ -688,7 +722,7 @@ def gerar_planilha(nome):
     # doc.save(nome)
 
     s3 = boto3.client('s3')
-    print (nome)
+    print(nome)
     doc = DocFiles()
 
     key = nome + ".xlsx"
@@ -722,6 +756,7 @@ def download_doc(id):
     documento = get_object_or_404(DocFiles, id=id)
 
     return raisehttpresponse('listar_downloads')
+
 
 def listar_download(request):
     files = {'files': DocFiles.objects.all()}
@@ -763,9 +798,10 @@ def delete_doc(request, id):
     #     os.remove('documents/documents/media/' + documento.title + '.docx')
     # except:
     #     os.remove('documents/documents/media/' + documento.title + '.xlsx')
-    
+
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')
+
 
 
 def limpar_lista(request):
@@ -783,20 +819,21 @@ def listar_projetos(request):
     teste = Projeto.objects.all()
 
     if busca:
-        
-        projetos = {'projetos': Projeto.objects.filter(nome_projeto__icontains=busca,user= request.user)}
+
+        projetos = {'projetos': Projeto.objects.filter(nome_projeto__icontains=busca, user=request.user)}
     else:
-        projetos = {'projetos': Projeto.objects.filter(user=request.user) | Projeto.objects.filter(convidados__id=request.user.id)}
+        projetos = {'projetos': Projeto.objects.filter(user=request.user) | Projeto.objects.filter(
+            convidados__id=request.user.id)}
 
     return render(request, 'index.html', projetos)
 
 
 def vincular_projeto(id):
-
     projeto = Projeto.objects.get(id=id)
     lista = ListaMaterial.objects.get(projeto=None)
     lista.projeto = projeto
     lista.save()
+
 
 def deletar_projeto(request, id):
     projeto = get_object_or_404(Projeto, id=id)
@@ -808,10 +845,12 @@ def deletar_projeto(request, id):
 
     return render(request, 'confirmar_delete_produto.html', {'projeto': projeto})
 
+
 def convidar_usuario():
     usuarios = User.objects.all()
-    for usuario  in usuarios:
-        print(usuario.first_name +' '+ usuario.last_name)
+    for usuario in usuarios:
+        print(usuario.first_name + ' ' + usuario.last_name)
+
 
 @login_required
 def get_perfil_logado(request):

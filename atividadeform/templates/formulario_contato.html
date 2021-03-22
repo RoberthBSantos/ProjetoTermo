@@ -11,5 +11,38 @@
         <button onclick='history.go(-1)' type="button" class="btn btn-outline-danger">Cancelar</button>
     </form>
 
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalSite">
+      Launch demo modal
+    </button>
+
+    <!-- modal -->
+    <div class="modal" id="modalSite" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Escolha os subitens(caso tiver)</h3>
+
+                </div>
+                <div class="modal-body">
+                    <p>
+                        asfjsodfijsdopfijoi
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-damger" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.select-com-pesquisa').select2();
+        });
+        $('#myModal').on('shown.bs.modal', function () {
+          $('#myInput').trigger('focus')
+        })
+    </script>
 
 {% endblock %}
