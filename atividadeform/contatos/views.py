@@ -253,6 +253,25 @@ def novo_subitem(request, id):
 
     return render(request, 'formulario_subitem.html', {'form': form, 'lista_subitem': lista_subitem, 'produto': produto})
 
+def atualizar_subitem(request, id):
+    subitem = get_object_or_404(SubItem, pk=id)
+    form = FormularioSubitem(request.POST or None, instance=subitem)
+    produto = Produtos.objects.get(id=subitem.item.id)
+    lista_subitem = SubItem.objects.filter(item__id=subitem.item.id)
+    # projeto = produto.projeto
+    if form.is_valid():
+        form.save()
+        return redirect('adicionar_subitem', subitem.item.id)
+
+    return render(request, 'formulario_subitem.html',{'form': form, 'lista_subitem': lista_subitem, 'produto': produto})
+
+@login_required
+def excluir_subitem(request, id):
+    subitem = get_object_or_404(SubItem, pk=id)
+    produto = Produtos.objects.get(id=subitem.item.id)
+
+    SubItem.objects.filter(id=id).delete()
+    return redirect('adicionar_subitem',produto.id)
 
 @login_required
 def excluir_prod_lista(request, id):
@@ -782,6 +801,7 @@ def delete_doc(request, id):
 
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')
+
 
 
 def limpar_lista(request):

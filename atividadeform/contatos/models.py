@@ -80,11 +80,35 @@ class ListaMaterial(models.Model):
     produto = models.ForeignKey(Produtos, null=True, blank=True, on_delete=models.PROTECT)
     projeto = models.ForeignKey(Projeto, null=True, on_delete=models.CASCADE)
 
+
     @property
     def custo_produto(self):
+        sub_itens = SubItem.objects.filter(item = self.produto)
+        soma_itens = 0
+        for i in sub_itens:
+            soma_itens += i.sub.valor_de_compra * i.quantidade
+        soma_itens += self.produto.valor_de_compra
 
-        total = ((self.projeto.margem / 100) * float(self.produto.valor_de_compra)) + float(
-            self.produto.valor_de_compra)
+
+        total = ((self.projeto.margem / 100) * float(soma_itens)) + float(
+            soma_itens)
+
+
+
+        if self.produto.grupo.nome == 'INFRAESTRUTURA' or self.produto.grupo.nome == 'SERVIÇOS DE INFRAESTRUTURA':
+            pontos = total / float(self.projeto.valor_upi)
+            pontos = round(pontos + 0.5)
+            total = pontos * self.projeto.valor_upi
+
+        elif self.produto.grupo.nome == 'REDE DE DADOS E ENERGIA' or self.produto.grupo.nome == 'SEGURANÇA':
+            pontos = total / float(self.projeto.valor_upe)
+            pontos = round(pontos + 0.5)
+            total = pontos * self.projeto.valor_upe
+
+        else:
+            pontos = total / float(self.projeto.valor_upr)
+            pontos = round(pontos + 0.5)
+            total = pontos * self.projeto.valor_upr
 
         return total
 
@@ -93,33 +117,51 @@ class ListaMaterial(models.Model):
         total = ((self.produto.tempo_de_instalacao / 60) * float(self.projeto.valor_infra) +
                  (self.produto.tempo_de_sup / 60) * float(self.projeto.valor_sup))
 
+        if self.produto.grupo.nome == 'INFRAESTRUTURA' or self.produto.grupo.nome == 'SERVIÇOS DE INFRAESTRUTURA':
+            pontos = total / float(self.projeto.valor_upi)
+            pontos = round(pontos + 0.5)
+            total = pontos * self.projeto.valor_upi
+
+        elif self.produto.grupo.nome == 'REDE DE DADOS E ENERGIA' or self.produto.grupo.nome == 'SEGURANÇA':
+            pontos = total / float(self.projeto.valor_upe)
+            pontos = round(pontos + 0.5)
+            total = pontos * self.projeto.valor_upe
+
+        else:
+            pontos = total / float(self.projeto.valor_upr)
+            pontos = round(pontos + 0.5)
+            total = pontos * self.projeto.valor_upr
+
         return total
 
     @property
     def custo_venda(self):
-        total = self.custo_servico + self.custo_produto + float(self.produto.valor_de_terceiros)
+        total = self.custo_servico + self.custo_produto + self.produto.valor_de_terceiros
 
         return total
 
-    @property
-    def pontos(self):
-        if self.produto.grupo.nome == 'INFRAESTRUTURA' or self.produto.grupo.nome == 'SERVIÇOS DE INFRAESTRUTURA':
-            total = self.custo_venda / float(self.projeto.valor_upi)
-            return round(total + 0.5)
-        elif self.produto.grupo.nome == 'REDE DE DADOS E ENERGIA' or self.produto.grupo.nome == 'SEGURANÇA':
-            total = self.custo_venda / float(self.projeto.valor_upe)
-            return round(total + 0.5)
-        else:
-            total = self.custo_venda / float(self.projeto.valor_upr)
-            return round(total + 0.5)
+
 
     @property
     def subtotal(self):
-        subtotal = (self.custo_venda * self.quantidade) + float(self.produto.valor_de_terceiros)
+        subtotal = (self.custo_venda * self.quantidade) + self.produto.valor_de_terceiros
         return subtotal
 
     def __str__(self):
         return self.produto.nome
+
+    @property
+    def pontos(self):
+        if self.produto.grupo.nome == 'INFRAESTRUTURA' or self.produto.grupo.nome == 'SERVIÇOS DE INFRAESTRUTURA':
+            total = float(self.custo_venda) / float(self.projeto.valor_upi)
+            print (total)
+            return round(total)
+        elif self.produto.grupo.nome == 'REDE DE DADOS E ENERGIA' or self.produto.grupo.nome == 'SEGURANÇA':
+            total = float(self.custo_venda) / float(self.projeto.valor_upe)
+            return round(total)
+        else:
+            total = float(self.custo_venda) / float(self.projeto.valor_upr)
+            return round(total)
 
 
 class DocFiles(models.Model):
