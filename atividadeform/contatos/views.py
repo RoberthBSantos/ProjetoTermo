@@ -79,19 +79,9 @@ def atualizar_projeto(request, id):
 @login_required
 def clonar_projeto(request, id):
     projeto = get_object_or_404(Projeto, pk=id)
-
-    clone = Projeto(
-        nome_projeto='Copia de ' + projeto.nome_projeto,
-        margem=projeto.margem,
-        valor_infra=projeto.valor_infra,
-        valor_sup=projeto.valor_sup,
-        valor_upi=projeto.valor_upi,
-        valor_upr=projeto.valor_upr,
-        valor_upe=projeto.valor_upe,
-        user=projeto.user,
-        tipo_de_projeto=projeto.tipo_de_projeto
-    )
-
+    clone = get_object_or_404(Projeto, pk=id)
+    clone.pk = None
+    clone.nome_projeto = 'copia de ' + projeto.nome_projeto
     clone.save()
 
     lista_materiais = ListaMaterial.objects.filter(projeto=projeto)
