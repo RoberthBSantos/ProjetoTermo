@@ -30,6 +30,7 @@ urlpatterns = [
     path('adicionar', novo_contato, name = "adicionar_contato"),
     path('adicionar_subitem/<int:id>', novo_subitem, name='adicionar_subitem'),
     path('atualizar_projeto/<int:id>', atualizar_projeto, name = 'atualizar_projeto'),
+    path('clonar_projeto/<int:id>', clonar_projeto, name='clonar_projeto'),
     path('atualizar/<int:id>/', atualizar_contato, name = "atualizar_contato"),
     path('atualizar_subitem/<int:id>', atualizar_subitem, name = "atualizar_subitem"),
     path('excluir_subitem/<int:id>',excluir_subitem, name = "excluir_subitem"),
