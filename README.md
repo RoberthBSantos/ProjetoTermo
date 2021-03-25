@@ -1,6 +1,6 @@
 # ProjetoTermo
 ### Sistema para automação de termo de referência.
-### Sistema criado em Django
+
 
 ## Listagem de projetos criados.
 <img src="https://raw.githubusercontent.com/RoberthBSantos/ProjetoTermo/master/nucleo-imagens/listar-projetos.png">
@@ -20,3 +20,4 @@
 
 ## Exemplo de documento de especificações gerado.
 <img src="https://raw.githubusercontent.com/RoberthBSantos/ProjetoTermo/master/nucleo-imagens/documento-gerado.png">
+#### Sistema criado em Django
