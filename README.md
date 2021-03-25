@@ -20,4 +20,5 @@
 
 ## Exemplo de documento de especificações gerado.
 <img src="https://raw.githubusercontent.com/RoberthBSantos/ProjetoTermo/master/nucleo-imagens/documento-gerado.png">
+
 #### Sistema criado em Django
