@@ -59,7 +59,10 @@ def novo_contato(request):
     form = FormularioContato(request.POST or None)
 
     if form.is_valid():
-        form.save()
+        produto = form.save(commit=False)
+        produto.usuario = request.user
+        produto.save()
+
         return redirect('lista_contatos')
 
     return render(request, 'formulario_contato.html', {'form': form})
@@ -101,7 +104,9 @@ def atualizar_contato(request, id):
     form = FormularioContato(request.POST or None, instance=contato)
 
     if form.is_valid():
-        form.save()
+        produto = form.save(commit=False)
+        produto.usuario = request.user
+        produto.save()
         return redirect('lista_contatos')
 
     return render(request, 'formulario_contato.html', {'form': form})

@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="92ea1594-2676-426d-bffe-fa76007e02db" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/atividadeform.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/atividadeform.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contatos/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/contatos/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contatos/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/contatos/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/formularios/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/formularios/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/formulario_subitem.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/formulario_subitem.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,11 +14,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/contatos/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1887">
-              <caret line="112" column="20" selection-start-line="112" selection-start-column="20" selection-end-line="112" selection-end-column="20" />
+            <state relative-caret-position="435">
+              <caret line="42" column="84" selection-start-line="42" selection-start-column="84" selection-end-line="42" selection-end-column="84" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
               </folding>
@@ -33,7 +29,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/formulario_subitem.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="404">
+            <state relative-caret-position="425">
               <caret line="25" column="30" selection-start-line="25" selection-start-column="30" selection-end-line="25" selection-end-column="30" />
             </state>
           </provider>
@@ -47,8 +43,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/formulario_lista.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="187">
-              <caret line="103" column="76" lean-forward="true" selection-start-line="103" selection-start-column="33" selection-end-line="103" selection-end-column="76" />
+            <state relative-caret-position="1751">
+              <caret line="103" column="76" selection-start-line="103" selection-start-column="33" selection-end-line="103" selection-end-column="76" />
             </state>
           </provider>
         </entry>
@@ -62,19 +58,13 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/contatos/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2248">
-              <caret line="273" column="51" lean-forward="true" selection-start-line="273" selection-start-column="51" selection-end-line="273" selection-end-column="51" />
+            <state relative-caret-position="214">
+              <caret line="63" column="21" selection-start-line="63" selection-start-column="21" selection-end-line="63" selection-end-column="21" />
               <folding>
                 <element signature="e#0#35#0" expanded="true" />
-                <element signature="e#6403#8725#0" />
-                <element signature="e#9276#9570#0" />
-                <element signature="e#9622#24839#0" />
-                <element signature="e#24891#27945#0" />
-                <element signature="e#28342#29396#0" />
-                <element signature="e#29429#30077#0" />
               </folding>
             </state>
           </provider>
@@ -83,8 +73,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/formularios/urls.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-24">
-              <caret line="34" column="79" selection-start-line="34" selection-start-column="79" selection-end-line="34" selection-end-column="79" />
+            <state relative-caret-position="187">
+              <caret line="37" column="59" lean-forward="true" selection-start-line="37" selection-start-column="59" selection-end-line="37" selection-end-column="59" />
             </state>
           </provider>
         </entry>
@@ -94,12 +84,15 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>print (total)</find>
-      <find>atualizar</find>
       <find>lista</find>
       <find>atual</find>
       <find>excluir</find>
       <find>deletar</find>
       <find>download</find>
+      <find>cop</find>
+      <find>commit</find>
+      <find>novo_conta</find>
+      <find>atualizar</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -108,9 +101,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/contatos/models.py" />
         <option value="$PROJECT_DIR$/formularios/urls.py" />
         <option value="$PROJECT_DIR$/templates/formulario_subitem.html" />
+        <option value="$PROJECT_DIR$/contatos/models.py" />
         <option value="$PROJECT_DIR$/contatos/views.py" />
       </list>
     </option>
@@ -125,7 +118,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -152,6 +144,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -184,6 +177,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10748156" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -205,13 +199,20 @@
     </layout>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/contatos/models.py">
+    <entry file="file://$PROJECT_DIR$/templates/formulario_subitem.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1887">
-          <caret line="112" column="20" selection-start-line="112" selection-start-column="20" selection-end-line="112" selection-end-column="20" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="425">
+          <caret line="25" column="30" selection-start-line="25" selection-start-column="30" selection-end-line="25" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/confirmar_delete_produto.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/formulario_lista.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1751">
+          <caret line="103" column="76" selection-start-line="103" selection-start-column="33" selection-end-line="103" selection-end-column="76" />
         </state>
       </provider>
     </entry>
@@ -222,42 +223,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/formulario_lista.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="103" column="76" lean-forward="true" selection-start-line="103" selection-start-column="33" selection-end-line="103" selection-end-column="76" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/confirmar_delete_produto.html">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/formulario_subitem.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="404">
-          <caret line="25" column="30" selection-start-line="25" selection-start-column="30" selection-end-line="25" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/formularios/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-24">
-          <caret line="34" column="79" selection-start-line="34" selection-start-column="79" selection-end-line="34" selection-end-column="79" />
+        <state relative-caret-position="187">
+          <caret line="37" column="59" lean-forward="true" selection-start-line="37" selection-start-column="59" selection-end-line="37" selection-end-column="59" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/contatos/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2248">
-          <caret line="273" column="51" lean-forward="true" selection-start-line="273" selection-start-column="51" selection-end-line="273" selection-end-column="51" />
+        <state relative-caret-position="214">
+          <caret line="63" column="21" selection-start-line="63" selection-start-column="21" selection-end-line="63" selection-end-column="21" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
-            <element signature="e#6403#8725#0" />
-            <element signature="e#9276#9570#0" />
-            <element signature="e#9622#24839#0" />
-            <element signature="e#24891#27945#0" />
-            <element signature="e#28342#29396#0" />
-            <element signature="e#29429#30077#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/contatos/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="42" column="84" selection-start-line="42" selection-start-column="84" selection-end-line="42" selection-end-column="84" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
           </folding>
         </state>
       </provider>
