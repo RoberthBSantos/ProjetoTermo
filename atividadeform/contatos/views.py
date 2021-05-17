@@ -315,7 +315,7 @@ def gerar_xlsx(request, id):
     produtos = Produtos.objects.order_by('nome')
     lista = ListaMaterial.objects.filter(projeto=id, produto__grupo__nome='INFRAESTRUTURA')
     grupos = Grupos.objects.all()
-    s3 = boto3.resource('s3')
+    # s3 = boto3.resource('s3')
 
     ##################  LISTAS DE MATERIAIS SEPARADAS POR GRUPO #########################
 
@@ -594,10 +594,10 @@ def gerar_xlsx(request, id):
     with BytesIO() as fileobj:
         wb.save(fileobj)
         fileobj.seek(0)
-        s3.Bucket('nucleo-bot').put_object(Key=nome_doc + '.xlsx', Body=fileobj)
-    # wb.save('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
+        # s3.Bucket('nucleo-bot').put_object(Key=nome_doc + '.xlsx', Body=fileobj)
+    wb.save('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     gerar_planilha(nome_doc)
-    # os.remove('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
+    os.remove('documents/documents/media/Planilha ' + nome_doc + '.xlsx')
     return redirect('listar_downloads')
 
 
@@ -609,9 +609,9 @@ def gerar_docx(request, id):
     grupos = Grupos.objects.all()
     cgrupo = 1
 
-    s3 = boto3.resource('s3')
-    for bucket in s3.buckets.all():
-        print(bucket.name)
+    # s3 = boto3.resource('s3')
+    # for bucket in s3.buckets.all():
+    #     print(bucket.name)
 
     doc = docx.Document()
 
@@ -667,11 +667,11 @@ def gerar_docx(request, id):
     with BytesIO() as fileobj:
         doc.save(fileobj)
         fileobj.seek(0)
-        s3.Bucket('nucleo-bot').put_object(Key=nome_doc + '.docx', Body=fileobj)
+        # s3.Bucket('nucleo-bot').put_object(Key=nome_doc + '.docx', Body=fileobj)
 
-    # doc.save('documents/documents/media/Anexos ' + nome_doc + '.docx')
+    doc.save('documents/documents/media/Anexos ' + nome_doc + '.docx')
     gerar_doc(nome_doc)
-    # os.remove('documents/documents/media/Anexos ' + nome_doc + '.docx')
+    os.remove('documents/documents/media/Anexos ' + nome_doc + '.docx')
 
     return redirect('listar_downloads')
 
@@ -689,27 +689,27 @@ def group_check(grupo):
 
 
 def gerar_doc(nome):
-    ACCESS_KEY = "AKIAVFLNOFOFSPIFDPUJ"
-    SECRET_KEY = "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"
-    REGION_NAME = "us-east-1"
-    BUCKET_NAME = "nucleo-bot"
-
-    ses = Session(aws_access_key_id=ACCESS_KEY,
-                  aws_secret_access_key=SECRET_KEY,
-                  region_name=REGION_NAME)
-    client = ses.client('s3')
-
-    key = nome + ".docx"
-
-    url = client.generate_presigned_url(
-        ClientMethod='get_object',
-        Params={
-            'Bucket': BUCKET_NAME,
-            'Key': key,
-            'ResponseContentDisposition': 'attachment'
-        },
-        ExpiresIn=180
-    )
+    # ACCESS_KEY = "AKIAVFLNOFOFSPIFDPUJ"
+    # SECRET_KEY = "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"
+    # REGION_NAME = "us-east-1"
+    # BUCKET_NAME = "nucleo-bot"
+    #
+    # ses = Session(aws_access_key_id=ACCESS_KEY,
+    #               aws_secret_access_key=SECRET_KEY,
+    #               region_name=REGION_NAME)
+    # client = ses.client('s3')
+    #
+    # key = nome + ".docx"
+    #
+    # url = client.generate_presigned_url(
+    #     ClientMethod='get_object',
+    #     Params={
+    #         'Bucket': BUCKET_NAME,
+    #         'Key': key,
+    #         'ResponseContentDisposition': 'attachment'
+    #     },
+    #     ExpiresIn=180
+    # )
 
     # s3 = boto3.client('s3')
     # print (nome)
@@ -727,58 +727,71 @@ def gerar_doc(nome):
     #     ExpiresIn=180
     # )
 
-    print(url)
+    # print(url)
 
-    doc.docupload = url
-    doc.title = nome
+    # doc.docupload = url
+    # doc.title = nome
+
+    f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Anexos ' + nome + '.docx'), 'rb'))
+    doc = DocFiles()
+    doc.docupload = f
 
     doc.save(nome)
 
 
 def gerar_planilha(nome):
-    # f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
-    # doc = DocFiles()
-    # doc.docupload = f
-    #
-    # doc.title = 'Planilha ' + nome
-    #
-    # doc.save(nome)
-
-    s3 = boto3.client('s3')
-    print(nome)
+    f = File(open(os.path.join(settings.MEDIA_ROOT, 'documents/media/Planilha ' + nome + '.xlsx'), 'rb'))
     doc = DocFiles()
+    doc.docupload = f
 
-    key = nome + ".xlsx"
-
-    url = s3.generate_presigned_url(
-        ClientMethod='get_object',
-        Params={
-            'Bucket': 'nucleo-bot',
-            'Key': key,
-            'ResponseContentDisposition': 'attachment'
-        },
-        ExpiresIn=180
-    )
-
-    print(url)
-
-    doc.docupload = url
-    doc.title = nome + ".xlsx"
+    doc.title = 'Planilha ' + nome
 
     doc.save(nome)
 
+    # s3 = boto3.client('s3')
+    # print(nome)
+    # doc = DocFiles()
+    #
+    # key = nome + ".xlsx"
+    #
+    # url = s3.generate_presigned_url(
+    #     ClientMethod='get_object',
+    #     Params={
+    #         'Bucket': 'nucleo-bot',
+    #         'Key': key,
+    #         'ResponseContentDisposition': 'attachment'
+    #     },
+    #     ExpiresIn=180
+    # )
+    #
+    # print(url)
+    #
+    # doc.docupload = url
+    # doc.title = nome + ".xlsx"
+    #
+    # doc.save(nome)
 
-def download_doc(id):
-    # file_path = os.path.join(settings.MEDIA_ROOT, path)
-    # if os.path.exists(file_path):
-    #     with open(file_path, 'rb') as fh:
-    #         response = HttpResponse(fh.read(), content_type="aplication/docupload")
-    #         response['Content-Disposition'] = 'inline;  filename=' + os.path.basename(file_path)
-    #         return response
-    #     raise Http404
-    documento = get_object_or_404(DocFiles, id=id)
 
-    return raisehttpresponse('listar_downloads')
+# def download_doc(id):
+#     # file_path = os.path.join(settings.MEDIA_ROOT, path)
+#     # if os.path.exists(file_path):
+#     #     with open(file_path, 'rb') as fh:
+#     #         response = HttpResponse(fh.read(), content_type="aplication/docupload")
+#     #         response['Content-Disposition'] = 'inline;  filename=' + os.path.basename(file_path)
+#     #         return response
+#     #     raise Http404
+#     documento = get_object_or_404(DocFiles, id=id)
+#
+#     return raisehttpresponse('listar_downloads')
+
+def download_doc(path):
+    file_path=os.path.join(settings.MEDIA_ROOT,path)
+    if os.path.exists(file_path):
+        with open(file_path,'rb') as fh:
+            response = HttpResponse(fh.read(),content_type="aplication/docupload" )
+            response['Content-Disposition'] = 'inline;  filename='+os.path.basename(file_path)
+            return response
+        raise Http404
 
 
 def listar_download(request):
@@ -820,7 +833,7 @@ def delete_doc(request, id):
     # try:
     #     os.remove('documents/documents/media/' + documento.title + '.docx')
     # except:
-    #     os.remove('documents/documents/media/' + documento.title + '.xlsx')
+    #     os.remove('documents/documents/media/' + documento.title.replace(" ","_") + '.xlsx')
 
     DocFiles.objects.filter(id=id).delete()
     return redirect('listar_downloads')
